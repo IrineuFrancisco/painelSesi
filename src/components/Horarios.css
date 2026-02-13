@@ -24,7 +24,7 @@
 }
 
 .proximo-header {
-  font-size: 0.7rem;
+  font-size: 2rem;
   text-transform: uppercase;
   margin-bottom: 5px;
 }
@@ -36,19 +36,19 @@
 }
 
 .proximo-hora-valor {
-  font-size: 2.5rem;
+  font-size: 4rem;
   font-weight: 900;
 }
 
 .proximo-nome-texto {
-  font-size: rem;
+  font-size: 3rem;
   font-weight: bold;
   line-height: 1.1;
 }
 
 .proximo-tag {
   background: var(--senai-red);
-  font-size: 0.6rem;
+  font-size: 1.5rem;
   margin-left: 5px;
   padding: 2px 5px;
   display: inline-block;
@@ -56,13 +56,13 @@
 
 /* Timeline vertical */
 .lista-horarios {
-  font-size: 1rem;
+  font-size: 2rem;
   margin-top: 1rem;
 }
 
 .horario-linha {
   display: flex;
-  gap: 1rem;
+  gap: 2rem;
   align-items: center;
   margin-bottom: 1.5rem;
   position: relative;

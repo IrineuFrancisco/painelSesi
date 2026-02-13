@@ -5,6 +5,11 @@ import Cardapio from './components/Cardapio';
 import Avisos from './components/Avisos';
 import Horarios from './components/Horarios';
 import AlertaSonoro from './components/AlertaSonoro';
+import AdminAvisos from './components/AdminAvisos';
+
+// Adicione a rota
+{/* <Route path="/admin" element={<AdminAvisos />} /> */}
+
 
 const Img = "/Sesi-SP.jpg";
 let horarios = [];
@@ -20,7 +25,7 @@ function App() {
     { hora: '07:00', tipo: 'entrada', nome: 'Entrada' },
     { hora: '07:50', tipo: 'troca',   nome: ' Fim da Primeira Aula' },
     { hora: '08:40', tipo: 'troca',   nome: ' Fim da Segunda Aula' },
-    { hora: '09:11', tipo: 'cafe',    nome: ' Café' },
+    { hora: '09:30', tipo: 'cafe',    nome: ' Café' },
     { hora: '10:40', tipo: 'troca',   nome: ' Fim da Quarta Aula' },
     { hora: '11:30', tipo: 'troca',   nome: ' Fim da Quinta Aula' },
     { hora: '12:20', tipo: 'saida',   nome: ' Saída' }
@@ -37,7 +42,7 @@ function App() {
   ];
 
 
-  if (horaAtual.getHours() < 12 || (horaAtual.getHours() === 12 && horaAtual.getMinutes() < 30)) {
+  if (horaAtual.getHours() < 12 || (horaAtual.getHours() === 12 && horaAtual.getMinutes() < 25)) {
     horarios = horariosManha;
   } else {
     horarios = horariosTarde;
@@ -69,14 +74,14 @@ const ativarAlerta = (tipo, nome) => {
   setTipoAlerta(tipo);
   setMostrarAlerta(true);
   
-  let audioSrc = '';
-  switch(tipo) {
-    case 'cafe':      
-      audioSrc = '/cafe.mp3';   
-      break;
-    default:
-      audioSrc = '/alarme.mp3'; 
-  }
+  // let audioSrc = '';
+  // switch(tipo) {
+  //   case 'cafe':      
+  //     audioSrc = '/cafe.mp3';   
+  //     break;
+  //   default:
+  //     audioSrc = '/alarme.mp3'; 
+  // } silenciando para não atrapalhar a aula
   
   const audio = new Audio(audioSrc);
   audio.preload = 'auto'; // Garante o carregamento imediato
@@ -108,7 +113,6 @@ const ativarAlerta = (tipo, nome) => {
         </div>
         
         <div className="relogio-container">
-          <div className="hora">{horaAtual.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
           <div className="data">
             {horaAtual.toLocaleDateString('pt-BR', { 
               weekday: 'long', 
@@ -116,6 +120,7 @@ const ativarAlerta = (tipo, nome) => {
               month: 'long'
             })}
           </div>
+          <div className="hora">{horaAtual.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>          
         </div>
       </header>
 
@@ -129,7 +134,7 @@ const ativarAlerta = (tipo, nome) => {
         
         {/* Coluna Cardápio - 50% */}
         <section className="coluna-cardapio">
-          <Cardapio />
+          <Avisos />
           {/* Caso queira voltar os avisos futuramente, eles podem entrar aqui ou em um modal */}
         </section>
          {/* Coluna Horários - 50% */}

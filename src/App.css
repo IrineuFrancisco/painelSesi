@@ -28,18 +28,19 @@ body {
 }
 
 .logoSenai {
-  width: 200px;
+  width: 300px;
   height: auto;
+  margin-left: 20px;
 }
 
 .header {
   background-color: var(--senai-white);
-  margin-top: 2ch;
+  /* margin-top: 2ch; */
   padding: 0 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 16vh;
+  height: 18vh;
   border-bottom: 5px solid var(--senai-red);
 }
 
@@ -57,18 +58,24 @@ body {
 
 .relogio-container {
   text-align: right;
+  display: flex;
 }
 
 .hora {  
-  font-size: 3.5rem;
+  font-size: 6rem;
   font-weight: 900;
   color: #4c4e53;
 }
 
 .data {
-  font-size: 1rem;
-  color: #888;
+  display: grid;
+  font-size: 2.5rem;
+  color: #3f3c3c;
   text-transform: uppercase;
+  justify-content: center;
+  align-items:end;
+  padding: 0 2rem 1rem 0;
+  
 }
 
 .conteudo-principal {
@@ -87,3 +94,4 @@ body {
   box-shadow: var(--sombra-card);
   height: 100%;
 }
+
