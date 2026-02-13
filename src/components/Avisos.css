@@ -160,4 +160,206 @@
   .card-titulo { font-size: 2rem; }
   .aviso-titulo { font-size: 1.8rem; }
   .aviso-mensagem, .cardapio-itens { font-size: 1.4rem; }
+
+  /* ========== RESPONSIVIDADE ========== */
+
+/* Tablets (768px - 1024px) */
+@media (max-width: 1024px) {
+  .card-titulo { 
+    font-size: 2.2rem; 
+  }
+  
+  .aviso-titulo { 
+    font-size: 2rem; 
+  }
+  
+  .aviso-mensagem, .cardapio-itens { 
+    font-size: 1.6rem; 
+  }
+  
+  .cardapio-hoje-tag {
+    font-size: 1.6rem;
+  }
+  
+  .cardapio-hora {
+    font-size: 1rem;
+  }
+  
+  .aviso-icone {
+    width: 65px;
+    height: 65px;
+    font-size: 2.5rem;
+  }
+}
+
+/* Tablets pequenos (600px - 768px) */
+@media (max-width: 768px) {
+  .avisos-card {
+    padding: 18px;
+  }
+  
+  .card-titulo {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+  }
+  
+  .card-icone {
+    font-size: 2rem;
+  }
+  
+  .aviso-destaque {
+    padding: 15px;
+    min-height: 150px;
+  }
+  
+  .aviso-header-flex {
+    gap: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .aviso-icone {
+    width: 55px;
+    height: 55px;
+    font-size: 2rem;
+  }
+  
+  .aviso-titulo {
+    font-size: 1.6rem;
+  }
+  
+  .aviso-mensagem {
+    font-size: 1.4rem;
+  }
+  
+  .cardapio-hoje-tag {
+    font-size: 1.4rem;
+    padding: 4px 12px;
+  }
+  
+  .cardapio-itens {
+    font-size: 1.4rem;
+  }
+  
+  .cardapio-hora {
+    font-size: 0.95rem;
+  }
+}
+
+/* Celulares (até 600px) */
+@media (max-width: 600px) {
+  .avisos-card {
+    padding: 12px;
+  }
+  
+  .card-titulo {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+    gap: 10px;
+  }
+  
+  .card-icone {
+    font-size: 1.5rem;
+  }
+  
+  .aviso-destaque {
+    padding: 12px;
+    min-height: 120px;
+    border-left-width: 5px;
+  }
+  
+  .aviso-header-flex {
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .aviso-icone {
+    width: 45px;
+    height: 45px;
+    font-size: 1.5rem;
+  }
+  
+  .aviso-titulo {
+    font-size: 1.3rem;
+  }
+  
+  .aviso-mensagem {
+    font-size: 1.1rem;
+  }
+  
+  .cardapio-container {
+    gap: 10px;
+  }
+  
+  .cardapio-hoje-tag {
+    font-size: 1.1rem;
+    padding: 3px 10px;
+  }
+  
+  .cardapio-itens {
+    font-size: 1.1rem;
+  }
+  
+  .cardapio-hora {
+    font-size: 0.85rem;
+  }
+  
+  .indicador {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .indicador.ativo {
+    width: 35px;
+  }
+}
+
+/* Celulares pequenos (até 400px) */
+@media (max-width: 400px) {
+  .avisos-card {
+    padding: 10px;
+  }
+  
+  .card-titulo {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+  
+  .card-icone {
+    font-size: 1.3rem;
+  }
+  
+  .aviso-destaque {
+    padding: 10px;
+    min-height: 100px;
+  }
+  
+  .aviso-icone {
+    width: 40px;
+    height: 40px;
+    font-size: 1.3rem;
+  }
+  
+  .aviso-titulo {
+    font-size: 1.1rem;
+  }
+  
+  .aviso-mensagem {
+    font-size: 0.95rem;
+  }
+  
+  .cardapio-hoje-tag {
+    font-size: 0.95rem;
+  }
+  
+  .cardapio-itens {
+    font-size: 0.95rem;
+  }
+  
+  .cardapio-hora {
+    font-size: 0.75rem;
+  }
+}
 }

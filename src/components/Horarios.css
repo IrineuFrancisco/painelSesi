@@ -107,3 +107,200 @@
   color: #2ecc71;
   margin-left: auto;
 }
+
+/* ========== RESPONSIVIDADE ========== */
+
+/* Tablets (768px - 1024px) */
+@media (max-width: 1024px) {
+  .proximo-header {
+    font-size: 1.6rem;
+  }
+  
+  .proximo-hora-valor {
+    font-size: 3.2rem;
+  }
+  
+  .proximo-nome-texto {
+    font-size: 2.4rem;
+  }
+  
+  .proximo-tag {
+    font-size: 1.2rem;
+  }
+  
+  .lista-horarios {
+    font-size: 1.6rem;
+  }
+  
+  .hora-texto {
+    width: 45px;
+  }
+}
+
+/* Tablets pequenos (600px - 768px) */
+@media (max-width: 768px) {
+  .horarios-card {
+    padding: 15px;
+  }
+  
+  .proximo-horario-box {
+    padding: 12px;
+    margin-bottom: 1.5rem;
+  }
+  
+  .proximo-header {
+    font-size: 1.3rem;
+    margin-bottom: 4px;
+  }
+  
+  .proximo-hora-valor {
+    font-size: 2.8rem;
+  }
+  
+  .proximo-nome-texto {
+    font-size: 2rem;
+  }
+  
+  .proximo-tag {
+    font-size: 1rem;
+    padding: 1px 4px;
+  }
+  
+  .lista-horarios {
+    font-size: 1.4rem;
+    margin-top: 0.8rem;
+  }
+  
+  .horario-linha {
+    gap: 1.5rem;
+    margin-bottom: 1.2rem;
+  }
+  
+  .hora-texto {
+    width: 40px;
+    font-size: 1.3rem;
+  }
+  
+  .nome-texto {
+    font-size: 1.3rem;
+  }
+}
+
+/* Celulares (até 600px) */
+@media (max-width: 600px) {
+  .horarios-card {
+    padding: 12px;
+  }
+  
+  .card-titulo {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+  }
+  
+  .proximo-horario-box {
+    padding: 10px;
+    margin-bottom: 1.2rem;
+  }
+  
+  .proximo-header {
+    font-size: 1.1rem;
+  }
+  
+  .proximo-main {
+    gap: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .proximo-hora-valor {
+    font-size: 2.2rem;
+  }
+  
+  .proximo-nome-texto {
+    font-size: 1.5rem;
+  }
+  
+  .proximo-tag {
+    font-size: 0.85rem;
+    padding: 1px 3px;
+    margin-left: 3px;
+  }
+  
+  .lista-horarios {
+    font-size: 1.2rem;
+    margin-top: 0.6rem;
+  }
+  
+  .horario-linha {
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .ponto-linha {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .hora-texto {
+    width: 35px;
+    font-size: 1.1rem;
+  }
+  
+  .nome-texto {
+    font-size: 1.1rem;
+  }
+  
+  .check-icon {
+    font-size: 1rem;
+  }
+}
+
+/* Celulares pequenos (até 400px) */
+@media (max-width: 400px) {
+  .horarios-card {
+    padding: 10px;
+  }
+  
+  .card-titulo {
+    font-size: 1.2rem;
+  }
+  
+  .proximo-horario-box {
+    padding: 8px;
+    margin-bottom: 1rem;
+  }
+  
+  .proximo-header {
+    font-size: 0.95rem;
+  }
+  
+  .proximo-hora-valor {
+    font-size: 1.8rem;
+  }
+  
+  .proximo-nome-texto {
+    font-size: 1.2rem;
+  }
+  
+  .proximo-tag {
+    font-size: 0.7rem;
+  }
+  
+  .lista-horarios {
+    font-size: 1rem;
+  }
+  
+  .horario-linha {
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .hora-texto {
+    width: 30px;
+    font-size: 0.95rem;
+  }
+  
+  .nome-texto {
+    font-size: 0.95rem;
+  }
+}

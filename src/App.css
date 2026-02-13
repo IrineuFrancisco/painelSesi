@@ -95,3 +95,176 @@ body {
   height: 100%;
 }
 
+
+/* ========== RESPONSIVIDADE ========== */
+
+/* Tablets grandes e monitores pequenos (768px - 1200px) */
+@media (max-width: 1200px) {
+  .logoSenai {
+    width: 220px;
+  }
+  
+  .hora {
+    font-size: 4.5rem;
+  }
+  
+  .data {
+    font-size: 1.8rem;
+    padding: 0 1rem 0.5rem 0;
+  }
+  
+  .header {
+    height: 16vh;
+    padding: 0 1.5rem;
+  }
+  
+  .logo-container h1 {
+    font-size: 1rem;
+  }
+}
+
+/* Tablets (768px - 1024px) */
+@media (max-width: 1024px) {
+  .logoSenai {
+    width: 180px;
+    margin-left: 10px;
+  }
+  
+  .hora {
+    font-size: 3.5rem;
+  }
+  
+  .data {
+    font-size: 1.4rem;
+    padding: 0 0.8rem 0.5rem 0;
+  }
+  
+  .header {
+    height: 15vh;
+    padding: 0 1rem;
+  }
+  
+  .logo-container {
+    gap: 1rem;
+  }
+  
+  .conteudo-principal {
+    gap: 1rem;
+  }
+  
+  .card-container {
+    padding: 1rem;
+  }
+}
+
+/* Tablets pequenos e celulares landscape (600px - 768px) */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    height: auto;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .logoSenai {
+    width: 150px;
+    margin-left: 0;
+  }
+  
+  .logo-container {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+  
+  .relogio-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .hora {
+    font-size: 3rem;
+  }
+  
+  .data {
+    font-size: 1.2rem;
+    padding: 0;
+  }
+  
+  .conteudo-principal {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+    padding: 0.5rem;
+    overflow-y: auto;
+  }
+  
+  .card-container {
+    padding: 0.8rem;
+  }
+  
+  body {
+    overflow-y: auto;
+  }
+  
+  .App {
+    height: auto;
+    min-height: 100vh;
+  }
+}
+
+/* Celulares (até 600px) */
+@media (max-width: 600px) {
+  .logoSenai {
+    width: 120px;
+  }
+  
+  .hora {
+    font-size: 2.5rem;
+  }
+  
+  .data {
+    font-size: 1rem;
+  }
+  
+  .header {
+    padding: 0.8rem;
+    border-bottom: 3px solid var(--senai-red);
+  }
+  
+  .logo-container h1 {
+    font-size: 0.8rem;
+  }
+  
+  .conteudo-principal {
+    gap: 0.5rem;
+    padding: 0.3rem;
+  }
+  
+  .card-container {
+    padding: 0.6rem;
+  }
+}
+
+/* Celulares pequenos (até 400px) */
+@media (max-width: 400px) {
+  .logoSenai {
+    width: 100px;
+  }
+  
+  .hora {
+    font-size: 2rem;
+  }
+  
+  .data {
+    font-size: 0.85rem;
+  }
+  
+  .header {
+    padding: 0.5rem;
+  }
+  
+  .logo-container h1 {
+    font-size: 0.7rem;
+  }
+}
