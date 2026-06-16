@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SESI SP | Gerenciador de Cardápios</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sesi-red: #E30613;
+            --sesi-black: #2D2D2D;
+            --sesi-gray: #F4F4F4;
+            --sesi-dark-red: #B80510;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--sesi-gray);
+            color: var(--sesi-black);
+            min-height: 100vh;
+        }
+
+        /* Top Bar Estilo SESI */
+        .top-header {
+            background-color: white;
+            border-bottom: 4px solid var(--sesi-red);
+            padding: 15px 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-header h1 {
+            color: var(--sesi-red);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: -1px;
+            font-size: 1.5rem;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--sesi-red);
+            padding-left: 15px;
+        }
+
+        /* Grid de Cardápios */
+        .dias-grid {
+            display: grid;
+            /* grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); */
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .dia-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 24px;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .dia-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--sesi-red);
+        }
+
+        .dia-card h3 {
+            color: var(--sesi-black);
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Inputs e Formulários */
+        label {
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            color: #555;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            min-height: 120px;
+            font-family: inherit;
+            transition: border 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border: 2px solid var(--sesi-red);
+        }
+
+        /* Botões Estilo SESI */
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: var(--sesi-red);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--sesi-dark-red);
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--sesi-black);
+            color: white;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        .status-ativo {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-inativo {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .preview-box {
+            background: #fcfcfc;
+            border: 1px dashed #ccc;
+            padding: 10px;
+            margin: 15px 0;
+            font-size: 0.85rem;
+            color: #444;
+            border-radius: 4px;
+        }
+
+        /* Mensagens de Alerta */
+        .alert {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 5px solid #dc3545;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 5px solid #28a745;
+        }
+
+        .config-box {
+            background: var(--sesi-gray);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            .main-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="top-header">
+        <h1>SESI <strong>SP</strong> | Nutrição</h1>
+    </header>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function App() {
+            const [supabaseUrl, setSupabaseUrl] = useState('https://qfnibnhjdnczxoublxif.supabase.co');
+            const [supabaseKey, setSupabaseKey] = useState('sb_publishable_rZf4HnUkAiO16oaQwserjg_Axj-2BwL');
+            const [supabase, setSupabase] = useState(null);
+            const [configured, setConfigured] = useState(false);
+            const [cardapios, setCardapios] = useState([]);
+            const [outrosAvisos, setOutrosAvisos] = useState([]);
+            const [novoAviso, setNovoAviso] = useState({ tipo: 'informacao', icone: '💡', titulo: '', mensagem: '', cor: '#118AB2', ativo: true, ordem: 10 });
+            const [loading, setLoading] = useState(false);
+            const [message, setMessage] = useState({ type: '', text: '' });
+
+            const tiposDisponiveis = [
+                { value: 'importante', label: 'Importante', icone: '⚠️', cor: '#EF476F' },
+                { value: 'evento', label: 'Evento', icone: '🎉', cor: '#FEC601' },
+                { value: 'lembrete', label: 'Lembrete', icone: '📚', cor: '#06D6A0' },
+                { value: 'informacao', label: 'Informação', icone: '💡', cor: '#118AB2' },
+                { value: 'saude', label: 'Saúde', icone: '🏥', cor: '#FF6B35' }
+            ];
+
+            const diasSemana = [
+                { ordem: 2, nome: 'Segunda-feira' },
+                { ordem: 3, nome: 'Terça-feira' },
+                { ordem: 4, nome: 'Quarta-feira' },
+                { ordem: 5, nome: 'Quinta-feira' },
+                { ordem: 6, nome: 'Sexta-feira' }
+            ];
+
+            useEffect(() => {
+                if (supabaseUrl && supabaseKey) {
+                    conectarSupabase();
+                }
+            }, []);
+
+            const conectarSupabase = () => {
+                try {
+                    const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+                    setSupabase(client);
+                    setConfigured(true);
+                    localStorage.setItem('supabaseUrl', supabaseUrl);
+                    localStorage.setItem('supabaseKey', supabaseKey);
+                } catch (e) {
+                    showMessage('error', 'Falha na conexão.');
+                }
+            };
+
+            useEffect(() => {
+                if (configured && supabase) carregarDados();
+            }, [configured, supabase]);
+
+            const carregarDados = async () => {
+                setLoading(true);
+                try {
+                    const { data, error } = await supabase
+                        .from('avisos')
+                        .select('*')
+                        .order('ordem', { ascending: true });
+
+                    if (error) throw error;
+
+                    const dataCardapios = data.filter(d => d.tipo === 'cardapio');
+                    const dataAvisos = data.filter(d => d.tipo !== 'cardapio');
+
+                    const structure = diasSemana.map(dia => {
+                        const dbItem = dataCardapios.find(d => d.ordem === dia.ordem);
+                        return dbItem || {
+                            tipo: 'cardapio',
+                            titulo: dia.nome,
+                            mensagem: '',
+                            icone: '🍽️',
+                            cor: '#E30613',
+                            ativo: true,
+                            ordem: dia.ordem
+                        };
+                    });
+                    setCardapios(structure);
+                    setOutrosAvisos(dataAvisos);
+                } catch (e) {
+                    showMessage('error', 'Erro ao carregar dados.');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const atualizarTexto = (ordem, val) => {
+                setCardapios(cardapios.map(c => c.ordem === ordem ? { ...c, mensagem: val } : c));
+            };
+
+            const atualizarAviso = (id, campo, val) => {
+                setOutrosAvisos(outrosAvisos.map(a => a.id === id ? { ...a, [campo]: val } : a));
+            };
+
+            const salvarNoBanco = async (item) => {
+                try {
+                    const { data: existe } = await supabase
+                        .from('avisos')
+                        .select('id')
+                        .eq('tipo', 'cardapio')
+                        .eq('ordem', item.ordem)
+                        .maybeSingle();
+
+                    if (existe) {
+                        await supabase.from('avisos').update({ mensagem: item.mensagem }).eq('id', existe.id);
+                    } else {
+                        await supabase.from('avisos').insert([item]);
+                    }
+                    showMessage('success', `${item.titulo} atualizado!`);
+                    carregarDados();
+                } catch (e) {
+                    showMessage('error', 'Erro ao salvar.');
+                }
+            };
+
+            const salvarAvisoGeral = async (item) => {
+                try {
+                    if (item.id) {
+                        await supabase.from('avisos').update({
+                            titulo: item.titulo,
+                            mensagem: item.mensagem,
+                            ativo: item.ativo,
+                            tipo: item.tipo,
+                            cor: item.cor,
+                            icone: item.icone
+                        }).eq('id', item.id);
+                    } else {
+                        await supabase.from('avisos').insert([item]);
+                        setNovoAviso({ tipo: 'informacao', icone: '💡', titulo: '', mensagem: '', cor: '#118AB2', ativo: true, ordem: 10 });
+                    }
+                    showMessage('success', item.id ? 'Aviso atualizado!' : 'Aviso criado!');
+                    carregarDados();
+                } catch (e) {
+                    showMessage('error', 'Erro ao salvar aviso.');
+                }
+            };
+
+            const excluirAviso = async (id) => {
+                if (!confirm('Excluir aviso?')) return;
+                try {
+                    await supabase.from('avisos').delete().eq('id', id);
+                    showMessage('success', 'Aviso excluído!');
+                    carregarDados();
+                } catch (e) {
+                    showMessage('error', 'Erro ao excluir aviso.');
+                }
+            };
+
+            const showMessage = (type, text) => {
+                setMessage({ type, text });
+                setTimeout(() => setMessage({ type: '', text: '' }), 4000);
+            };
+
+            if (!configured) {
+                return (
+                    <div className="container">
+                        <div className="main-card">
+                            <h2>Configuração de Acesso</h2>
+                            <p className="subtitle">Insira as chaves do banco de dados para gerenciar os cardápios.</p>
+                            <div className="config-box">
+                                <label>URL do Projeto</label>
+                                <input type="text" className="dia-card" style={{ width: '100%', marginBottom: '20px', padding: '10px' }}
+                                    value={supabaseUrl} onChange={e => setSupabaseUrl(e.target.value)} />
+
+                                <label>Chave de API (Anon Key)</label>
+                                <input type="password" className="dia-card" style={{ width: '100%', marginBottom: '20px', padding: '10px' }}
+                                    value={supabaseKey} onChange={e => setSupabaseKey(e.target.value)} />
+
+                                <button className="btn btn-primary" onClick={conectarSupabase}>Acessar Sistema</button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="container">
+                    <div className="main-card">
+                        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                            <div>
+                                <h2>Gestão de Cardápio Escolar</h2>
+                                <p className="subtitle">Edite o que será servido em cada dia da semana.</p>
+                            </div>
+                            <button className="btn btn-secondary" onClick={() => { localStorage.clear(); location.reload(); }}>Sair</button>
+                        </header>
+
+                        {message.text && (
+                            <div className={`alert ${message.type === 'error' ? 'alert-error' : 'alert-success'}`}>
+                                {message.text}
+                            </div>
+                        )}
+
+                        {loading ? <p>Carregando dados...</p> : (
+                            <>
+                                <div className="dias-grid">
+                                    {cardapios.map(item => (
+                                        <div key={item.ordem} className="dia-card">
+                                            <h3>
+                                                {item.titulo}
+                                                <span className={`status-badge ${item.ativo ? 'status-ativo' : 'status-inativo'}`}>
+                                                    {item.ativo ? 'Publicado' : 'Oculto'}
+                                                </span>
+                                            </h3>
+                                            <label>Descrição do Cardápio</label>
+                                            <textarea
+                                                value={item.mensagem}
+                                                onChange={e => atualizarTexto(item.ordem, e.target.value)}
+                                                placeholder="Ex: Arroz, feijão, frango grelhado e salada."
+                                            />
+                                            {item.mensagem && <div className="preview-box"><strong>Visualização:</strong><br />{item.mensagem}</div>}
+                                            <button
+                                                className="btn btn-primary"
+                                                style={{ width: '100%', marginTop: '10px' }}
+                                                onClick={() => salvarNoBanco(item)}
+                                            >
+                                                Atualizar {item.titulo.split('-')[0]}
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <h2 style={{ marginTop: '40px', marginBottom: '20px', borderTop: '1px solid #ccc', paddingTop: '20px', color: '#2D2D2D' }}>Gestão de Avisos Gerais</h2>
+                                <p className="subtitle" style={{ marginBottom: '20px' }}>Gerencie os informativos escolares que aparecerão no painel.</p>
+                                <div className="dias-grid">
+                                    {outrosAvisos.map(aviso => (
+                                        <div key={aviso.id} className="dia-card" style={{ borderLeft: `4px solid ${aviso.cor}` }}>
+                                            <h3 style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                                <input type="text" value={aviso.titulo} onChange={e => atualizarAviso(aviso.id, 'titulo', e.target.value)} style={{ flex: 1, padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+                                                <button className={`btn ${aviso.ativo ? 'btn-success' : 'btn-secondary'}`} style={{ padding: '8px 12px', fontSize: '0.8rem' }} onClick={() => atualizarAviso(aviso.id, 'ativo', !aviso.ativo)}>
+                                                    {aviso.ativo ? 'Ativo' : 'Inativo'}
+                                                </button>
+                                            </h3>
+                                            <label style={{ marginTop: '10px' }}>Mensagem</label>
+                                            <textarea
+                                                value={aviso.mensagem}
+                                                onChange={e => atualizarAviso(aviso.id, 'mensagem', e.target.value)}
+                                                placeholder="Mensagem do aviso"
+                                                style={{ minHeight: '80px', marginTop: '5px' }}
+                                            />
+                                            <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                                <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => salvarAvisoGeral(aviso)}>Salvar</button>
+                                                <button className="btn btn-secondary" style={{ backgroundColor: '#dc3545', border: 'none' }} onClick={() => excluirAviso(aviso.id)}>Excluir</button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    
+                                    {/* Formulário Novo Aviso */}
+                                    <div className="dia-card" style={{ border: '2px dashed #aaa', backgroundColor: '#fcfcfc' }}>
+                                        <h3 style={{ color: '#444' }}>Novo Aviso</h3>
+                                        <label>Título</label>
+                                        <input type="text" value={novoAviso.titulo} onChange={e => setNovoAviso({...novoAviso, titulo: e.target.value})} style={{ width: '100%', padding: '8px', marginBottom: '15px', border: '1px solid #ccc', borderRadius: '4px' }} placeholder="Ex: Reunião de Pais" />
+                                        
+                                        <label>Tipo</label>
+                                        <select value={novoAviso.tipo} onChange={e => {
+                                            const t = tiposDisponiveis.find(x => x.value === e.target.value);
+                                            setNovoAviso({...novoAviso, tipo: t.value, icone: t.icone, cor: t.cor});
+                                        }} style={{ width: '100%', padding: '8px', marginBottom: '15px', border: '1px solid #ccc', borderRadius: '4px' }}>
+                                            {tiposDisponiveis.map(t => <option key={t.value} value={t.value}>{t.icone} {t.label}</option>)}
+                                        </select>
+
+                                        <label>Mensagem</label>
+                                        <textarea
+                                            value={novoAviso.mensagem}
+                                            onChange={e => setNovoAviso({...novoAviso, mensagem: e.target.value})}
+                                            placeholder="Digite o texto do aviso..."
+                                            style={{ minHeight: '80px', marginTop: '5px' }}
+                                        />
+                                        <button className="btn btn-success" style={{ width: '100%', marginTop: '15px' }} onClick={() => salvarAvisoGeral(novoAviso)}>+ Adicionar Aviso</button>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+
+</html>

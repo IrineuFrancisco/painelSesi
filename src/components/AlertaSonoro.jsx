@@ -2,6 +2,7 @@ import React from 'react';
 import './AlertaSonoro.css';
 
 function AlertaSonoro({ mostrar, tipo, nome }) {
+  console.log(nome);
   if (!mostrar) return null;
 
   const getIcone = (tipo) => {

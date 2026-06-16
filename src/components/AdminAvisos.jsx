@@ -23,7 +23,8 @@ function AdminAvisos() {
     { value: 'evento', label: 'Evento', icone: '🎉', cor: '#FEC601' },
     { value: 'lembrete', label: 'Lembrete', icone: '📚', cor: '#06D6A0' },
     { value: 'informacao', label: 'Informação', icone: '💡', cor: '#118AB2' },
-    { value: 'saude', label: 'Saúde', icone: '🏥', cor: '#FF6B35' }
+    { value: 'saude', label: 'Saúde', icone: '🏥', cor: '#FF6B35' },
+    { value: 'cardapio', label: 'Cardápio', icone: '🍽️', cor: '#10B981' }
   ];
 
   useEffect(() => {
@@ -239,8 +240,14 @@ function AdminAvisos() {
                 value={formData.mensagem}
                 onChange={(e) => setFormData({ ...formData, mensagem: e.target.value })}
                 rows="4"
+                placeholder={formData.tipo === 'cardapio' ? 'Exemplo: MANHÃ: Pão | ALMOÇO: Arroz e Feijão | TARDE: Fruta' : 'Digite a mensagem do aviso'}
                 required
               />
+              {formData.tipo === 'cardapio' && (
+                <small style={{color: '#666', marginTop: '5px', display: 'block'}}>
+                  Para o cardápio, use o formato exato: <b>MANHÃ: itens | ALMOÇO: itens | TARDE: itens</b>. E no campo Título, inclua o dia da semana (ex: <b>Terça-feira</b>).
+                </small>
+              )}
             </div>
 
             <div className="form-group-checkbox">

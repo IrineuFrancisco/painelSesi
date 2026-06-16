@@ -1,6 +1,13 @@
 .horarios-card {
+  background: #ffffff;
+  color: #1e293b;
+  padding: 24px;
+  border-radius: 24px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .titulo-secao {
@@ -9,103 +16,145 @@
   text-transform: uppercase;
   font-size: 1rem;
   margin-bottom: 1.5rem;
+  margin-right: 1rem;
   border-bottom: 1px solid #eee;
   padding-bottom: 0.5rem;
 }
 
 /* Box do Próximo Evento (Escuro) */
 .proximo-horario-box {
-  background-color: #4c4e53;
+  background-color: var(--senai-red);
   color: white;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 2rem;
-  position: relative;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 0.2rem;
+  box-shadow: 0 4px 15px rgba(237, 28, 36, 0.4);
 }
 
 .proximo-header {
-  font-size: 2rem;
+  font-size: 1rem;
   text-transform: uppercase;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
+  font-weight: 500;
 }
 
 .proximo-main {
   display: flex;
   align-items: center;
-  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.proximo-main > * {
+  margin-right: 12px;
 }
 
 .proximo-hora-valor {
-  font-size: 4rem;
+  font-size: 1.5rem;
   font-weight: 900;
+  line-height: 1;
+}
+
+.proximo-detalhes {
+  display: flex;
+  align-items: center;
 }
 
 .proximo-nome-texto {
-  font-size: 3rem;
-  font-weight: bold;
+  margin-right: 15px;
+}
+
+.proximo-nome-texto {
+  font-size: 1.3rem;
+  font-weight: 700;
   line-height: 1.1;
 }
 
 .proximo-tag {
-  background: var(--senai-red);
-  font-size: 1.5rem;
-  margin-left: 5px;
-  padding: 2px 5px;
-  display: inline-block;
+  background: white;
+  color: var(--senai-red);
+  font-size: 1rem;
+  font-weight: 900;
+  padding: 6px 16px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Timeline vertical */
 .lista-horarios {
-  font-size: 2rem;
-  margin-top: 1rem;
+  font-size: 1.4rem;
+  margin-top: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .horario-linha {
   display: flex;
-  gap: 2rem;
   align-items: center;
-  margin-bottom: 1.5rem;
-  position: relative;
+}
+
+.linha-tempo {
+  margin-right: 20px;
 }
 
 .linha-tempo {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  position: relative;
+  justify-content: center;
+  width: 20px;
 }
 
 .ponto-linha {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background-color: #ccc;
+  background-color: #d1d5db;
+  /* gray-300 */
 }
 
 .status-proximo .ponto-linha {
   background-color: var(--senai-red);
-  box-shadow: 0 0 10px rgba(255,0,0,0.5);
+  width: 14px;
+  height: 14px;
+  box-shadow: 0 0 0 4px rgba(237, 28, 36, 0.2);
+}
+
+.horario-conteudo {
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  flex: 1;
 }
 
 .hora-texto {
-  font-weight: bold;
-  color: #888;
-  width: 50px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #9ca3af;
+  /* gray-400 */
+  min-width: 90px;
+  flex-shrink: 0;
 }
 
 .nome-texto {
-  color: #888;
+  color: #9ca3af;
+  /* gray-400 */
 }
 
-.status-proximo .hora-texto, 
+.status-proximo .hora-texto,
 .status-proximo .nome-texto {
-  color: #333;
+  color: #111827;
+  /* gray-900 */
   font-weight: 900;
+  font-size: 1.3rem;
 }
 
 .check-icon {
-  color: #2ecc71;
-  margin-left: auto;
+  color: #10b981;
+  /* emerald-500 */
+  margin-left: 10px;
+  font-weight: bold;
 }
 
 /* ========== RESPONSIVIDADE ========== */
@@ -113,25 +162,25 @@
 /* Tablets (768px - 1024px) */
 @media (max-width: 1024px) {
   .proximo-header {
-    font-size: 1.6rem;
+    font-size: 1rem;
   }
-  
+
   .proximo-hora-valor {
-    font-size: 3.2rem;
+    font-size: 1.7rem;
   }
-  
+
   .proximo-nome-texto {
-    font-size: 2.4rem;
+    font-size: 1.3rem;
   }
-  
+
   .proximo-tag {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
-  
+
   .lista-horarios {
-    font-size: 1.6rem;
+    font-size: 0.9rem;
   }
-  
+
   .hora-texto {
     width: 45px;
   }
@@ -142,45 +191,46 @@
   .horarios-card {
     padding: 15px;
   }
-  
+
   .proximo-horario-box {
-    padding: 12px;
-    margin-bottom: 1.5rem;
+    padding: 1rem;
+    margin-bottom: .5rem;
+    margin-right: 1rem;
   }
-  
+
   .proximo-header {
     font-size: 1.3rem;
     margin-bottom: 4px;
   }
-  
+
   .proximo-hora-valor {
-    font-size: 2.8rem;
+    font-size: 2rem;
   }
-  
+
   .proximo-nome-texto {
     font-size: 2rem;
   }
-  
+
   .proximo-tag {
     font-size: 1rem;
     padding: 1px 4px;
   }
-  
+
   .lista-horarios {
     font-size: 1.4rem;
     margin-top: 0.8rem;
   }
-  
+
   .horario-linha {
     gap: 1.5rem;
-    margin-bottom: 1.2rem;
+    margin-bottom: .5rem;
   }
-  
+
   .hora-texto {
     width: 40px;
     font-size: 1.3rem;
   }
-  
+
   .nome-texto {
     font-size: 1.3rem;
   }
@@ -191,65 +241,66 @@
   .horarios-card {
     padding: 12px;
   }
-  
+
   .card-titulo {
-    font-size: 1.4rem;
+    font-size: 1rem;
     margin-bottom: 12px;
   }
-  
+
   .proximo-horario-box {
-    padding: 10px;
-    margin-bottom: 1.2rem;
+    padding: 1rem;
+    margin-bottom: .5rem;
+    margin-right: 1rem;
   }
-  
+
   .proximo-header {
     font-size: 1.1rem;
   }
-  
+
   .proximo-main {
     gap: 8px;
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .proximo-hora-valor {
     font-size: 2.2rem;
   }
-  
+
   .proximo-nome-texto {
     font-size: 1.5rem;
   }
-  
+
   .proximo-tag {
     font-size: 0.85rem;
     padding: 1px 3px;
     margin-left: 3px;
   }
-  
+
   .lista-horarios {
     font-size: 1.2rem;
     margin-top: 0.6rem;
   }
-  
+
   .horario-linha {
     gap: 1rem;
     margin-bottom: 1rem;
   }
-  
+
   .ponto-linha {
     width: 8px;
     height: 8px;
   }
-  
+
   .hora-texto {
     width: 35px;
     font-size: 1.1rem;
   }
-  
+
   .nome-texto {
     font-size: 1.1rem;
   }
-  
+
   .check-icon {
     font-size: 1rem;
   }
@@ -260,46 +311,47 @@
   .horarios-card {
     padding: 10px;
   }
-  
+
   .card-titulo {
     font-size: 1.2rem;
   }
-  
+
   .proximo-horario-box {
-    padding: 8px;
-    margin-bottom: 1rem;
+    padding: 1rem;
+    margin-bottom: .5rem;
+    margin-right: 1rem;
   }
-  
+
   .proximo-header {
     font-size: 0.95rem;
   }
-  
+
   .proximo-hora-valor {
     font-size: 1.8rem;
   }
-  
+
   .proximo-nome-texto {
     font-size: 1.2rem;
   }
-  
+
   .proximo-tag {
     font-size: 0.7rem;
   }
-  
+
   .lista-horarios {
     font-size: 1rem;
   }
-  
+
   .horario-linha {
     gap: 0.8rem;
     margin-bottom: 0.8rem;
   }
-  
+
   .hora-texto {
     width: 30px;
     font-size: 0.95rem;
   }
-  
+
   .nome-texto {
     font-size: 0.95rem;
   }

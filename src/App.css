@@ -1,10 +1,10 @@
 :root {
-  --senai-red: #ff0000;
+  --senai-red: #ed1c24;
   --senai-blue: #4c4e53;
   --senai-white: #ffffff;
-  --senai-bg-gray: #cecece; /* Cinza de fundo da imagem */
-  --senai-text-dark: #333333;
-  --sombra-card: 0 4px 10px rgba(0, 0, 0, 0.15);
+  --senai-bg-gray: #f3f4f6;
+  --senai-text-dark: #1e293b;
+  --sombra-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 * {
@@ -14,7 +14,7 @@
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Roboto', 'Inter', sans-serif;
   background-color: var(--senai-bg-gray);
   color: var(--senai-text-dark);
   height: 100vh;
@@ -25,72 +25,68 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  margin-top: 15px;
 }
 
 .logoSenai {
-  width: 300px;
+  width: 280px;
   height: auto;
-  margin-left: 20px;
 }
 
 .header {
   background-color: var(--senai-white);
-  /* margin-top: 2ch; */
-  padding: 0 2rem;
+  padding: 1rem 3rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 18vh;
-  border-bottom: 5px solid var(--senai-red);
+  border-bottom: 4px solid var(--senai-red);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin-bottom: 25px;
+  margin-top: 10px;
 }
 
 .logo-container {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-}
-
-.logo-container h1 {
-  font-size: 1.2rem;
-  color: #4c4e53;
-  text-transform: uppercase;
 }
 
 .relogio-container {
-  text-align: right;
   display: flex;
+  align-items: center;
 }
 
-.hora {  
-  font-size: 6rem;
-  font-weight: 900;
-  color: #4c4e53;
+.relogio-container>*:not(:last-child) {
+  margin-right: 1.5rem;
 }
 
 .data {
-  display: grid;
-  font-size: 2.5rem;
-  color: #3f3c3c;
+  font-size: 1.8rem;
+  color: #555;
   text-transform: uppercase;
-  justify-content: center;
-  align-items:end;
-  padding: 0 2rem 1rem 0;
-  
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.hora {
+  font-size: 5.5rem;
+  font-weight: 900;
+  color: #333;
+  line-height: 1;
 }
 
 .conteudo-principal {
   flex: 1;
   display: grid;
-  grid-template-columns: 50% 50%;
-  gap: 1.5rem;
-  /* padding: 2rem; */
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  padding: 0 3rem 2rem 3rem;
 }
 
 /* Estilo geral dos containers brancos */
 .card-container {
   background: white;
-  border-radius: 4px;
-  padding: 1.5rem;
+  border-radius: 20px;
+  padding: 2rem;
   box-shadow: var(--sombra-card);
   height: 100%;
 }
@@ -103,21 +99,21 @@ body {
   .logoSenai {
     width: 220px;
   }
-  
+
   .hora {
     font-size: 4.5rem;
   }
-  
+
   .data {
     font-size: 1.8rem;
     padding: 0 1rem 0.5rem 0;
   }
-  
+
   .header {
     height: 16vh;
     padding: 0 1.5rem;
   }
-  
+
   .logo-container h1 {
     font-size: 1rem;
   }
@@ -129,29 +125,29 @@ body {
     width: 180px;
     margin-left: 10px;
   }
-  
+
   .hora {
     font-size: 3.5rem;
   }
-  
+
   .data {
     font-size: 1.4rem;
     padding: 0 0.8rem 0.5rem 0;
   }
-  
+
   .header {
     height: 15vh;
     padding: 0 1rem;
   }
-  
+
   .logo-container {
     gap: 1rem;
   }
-  
+
   .conteudo-principal {
     gap: 1rem;
   }
-  
+
   .card-container {
     padding: 1rem;
   }
@@ -165,48 +161,48 @@ body {
     padding: 1rem;
     gap: 1rem;
   }
-  
+
   .logoSenai {
     width: 150px;
     margin-left: 0;
   }
-  
+
   .logo-container {
     flex-direction: column;
     gap: 0.5rem;
     text-align: center;
   }
-  
+
   .relogio-container {
     flex-direction: column;
     align-items: center;
     text-align: center;
   }
-  
+
   .hora {
     font-size: 3rem;
   }
-  
+
   .data {
     font-size: 1.2rem;
     padding: 0;
   }
-  
+
   .conteudo-principal {
     grid-template-columns: 1fr;
     gap: 0.8rem;
     padding: 0.5rem;
     overflow-y: auto;
   }
-  
+
   .card-container {
     padding: 0.8rem;
   }
-  
+
   body {
     overflow-y: auto;
   }
-  
+
   .App {
     height: auto;
     min-height: 100vh;
@@ -218,29 +214,29 @@ body {
   .logoSenai {
     width: 120px;
   }
-  
+
   .hora {
     font-size: 2.5rem;
   }
-  
+
   .data {
     font-size: 1rem;
   }
-  
+
   .header {
     padding: 0.8rem;
     border-bottom: 3px solid var(--senai-red);
   }
-  
+
   .logo-container h1 {
     font-size: 0.8rem;
   }
-  
+
   .conteudo-principal {
     gap: 0.5rem;
     padding: 0.3rem;
   }
-  
+
   .card-container {
     padding: 0.6rem;
   }
@@ -251,20 +247,84 @@ body {
   .logoSenai {
     width: 100px;
   }
-  
+
   .hora {
     font-size: 2rem;
   }
-  
+
   .data {
     font-size: 0.85rem;
   }
-  
+
   .header {
     padding: 0.5rem;
   }
-  
+
   .logo-container h1 {
     font-size: 0.7rem;
   }
+}
+
+/* Modal Senha */
+.modal-senha-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-senha-content {
+  background-color: var(--senai-white);
+  padding: 2rem;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.modal-senha-content h2 {
+  margin-bottom: 1.5rem;
+  color: var(--senai-text-dark);
+}
+
+.modal-senha-content input {
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1.2rem;
+}
+
+.modal-senha-botoes {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.modal-senha-botoes button {
+  flex: 1;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-cancelar {
+  background-color: #ccc;
+  color: #333;
+}
+
+.btn-entrar {
+  background-color: var(--senai-red);
+  color: white;
 }
