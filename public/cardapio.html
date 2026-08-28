@@ -245,7 +245,7 @@
             const [configured, setConfigured] = useState(false);
             const [cardapios, setCardapios] = useState([]);
             const [outrosAvisos, setOutrosAvisos] = useState([]);
-            const [novoAviso, setNovoAviso] = useState({ tipo: 'informacao', icone: '💡', titulo: '', mensagem: '', cor: '#118AB2', ativo: true, ordem: 10 });
+            const [novoAviso, setNovoAviso] = useState({ tipo: 'informacao', icone: '💡', titulo: '', mensagem: '', midia_tipo: 'nenhum', midia_url: '', cor: '#118AB2', ativo: true, ordem: 10 });
             const [loading, setLoading] = useState(false);
             const [message, setMessage] = useState({ type: '', text: '' });
 
@@ -254,7 +254,9 @@
                 { value: 'evento', label: 'Evento', icone: '🎉', cor: '#FEC601' },
                 { value: 'lembrete', label: 'Lembrete', icone: '📚', cor: '#06D6A0' },
                 { value: 'informacao', label: 'Informação', icone: '💡', cor: '#118AB2' },
-                { value: 'saude', label: 'Saúde', icone: '🏥', cor: '#FF6B35' }
+                { value: 'saude', label: 'Saúde', icone: '🏥', cor: '#FF6B35' },
+                { value: 'imagem', label: 'Banner / Imagem', icone: '🖼️', cor: '#8E44AD' },
+                { value: 'video', label: 'Vídeo', icone: '🎬', cor: '#E67E22' }
             ];
 
             const diasSemana = [
@@ -350,20 +352,68 @@
                 }
             };
 
+            const convertDriveUrl = (rawUrl) => {
+                if (!rawUrl) return '';
+                if (rawUrl.includes('drive.google.com')) {
+                    let fileId = null;
+                    if (rawUrl.includes('/file/d/')) {
+                        fileId = rawUrl.split('/file/d/')[1]?.split('/')[0]?.split('?')[0];
+                    } else if (rawUrl.includes('id=')) {
+                        fileId = rawUrl.split('id=')[1]?.split('&')[0];
+                    }
+                    if (fileId) {
+                        return `https://lh3.googleusercontent.com/d/${fileId.trim()}`;
+                    }
+                }
+                return rawUrl;
+            };
+
             const salvarAvisoGeral = async (item) => {
                 try {
+                    const rawMediaUrl = item.midia_url !== undefined
+                        ? item.midia_url
+                        : (item.video_url || item.imagem_url || '');
+                    const mediaUrl = convertDriveUrl((rawMediaUrl || '').trim());
+
+                    let tipoMidia = 'nenhum';
+
+                    // Auto-detecta se a URL da mídia é de um vídeo (mp4, webm, youtube, vimeo, etc.)
+                    if (mediaUrl) {
+                        const isVideo = Boolean(mediaUrl.match(/\.(mp4|webm|ogv)(\?.*)?$/i)) ||
+                            mediaUrl.includes('youtube.com') ||
+                            mediaUrl.includes('youtu.be') ||
+                            mediaUrl.includes('vimeo.com') ||
+                            item.tipo === 'video';
+
+                        if (isVideo) {
+                            tipoMidia = 'video';
+                        } else {
+                            tipoMidia = 'imagem';
+                        }
+                    } else if (item.tipo === 'video') {
+                        tipoMidia = 'video';
+                    } else if (item.tipo === 'imagem') {
+                        tipoMidia = 'imagem';
+                    }
+
+                    const payload = {
+                        titulo: item.titulo,
+                        mensagem: item.mensagem,
+                        tipo_midia: tipoMidia,
+                        imagem_url: tipoMidia === 'imagem' ? mediaUrl : null,
+                        video_url: tipoMidia === 'video' ? mediaUrl : null,
+                        duracao: parseInt(item.duracao) || 10,
+                        ativo: item.ativo,
+                        tipo: item.tipo,
+                        cor: item.cor,
+                        icone: item.icone
+                    };
+
                     if (item.id) {
-                        await supabase.from('avisos').update({
-                            titulo: item.titulo,
-                            mensagem: item.mensagem,
-                            ativo: item.ativo,
-                            tipo: item.tipo,
-                            cor: item.cor,
-                            icone: item.icone
-                        }).eq('id', item.id);
+                        await supabase.from('avisos').update(payload).eq('id', item.id);
                     } else {
-                        await supabase.from('avisos').insert([item]);
-                        setNovoAviso({ tipo: 'informacao', icone: '💡', titulo: '', mensagem: '', cor: '#118AB2', ativo: true, ordem: 10 });
+                        await supabase.from('avisos').insert([payload]);
+                        setNovoAviso({ tipo: 'informacao', icone: '💡', titulo: '', mensagem: '', tipo_midia: 'nenhum', midia_url: '', duracao: 10, cor: '#118AB2', ativo: true, ordem: 10 });
                     }
                     showMessage('success', item.id ? 'Aviso atualizado!' : 'Aviso criado!');
                     carregarDados();
@@ -467,30 +517,56 @@
                                                     {aviso.ativo ? 'Ativo' : 'Inativo'}
                                                 </button>
                                             </h3>
-                                            <label style={{ marginTop: '10px' }}>Mensagem</label>
+                                            <label style={{ marginTop: '10px' }}>Tipo</label>
+                                            <select value={aviso.tipo} onChange={e => {
+                                                const t = tiposDisponiveis.find(x => x.value === e.target.value);
+                                                atualizarAviso(aviso.id, 'tipo', t.value);
+                                                if (t) {
+                                                    atualizarAviso(aviso.id, 'icone', t.icone);
+                                                    atualizarAviso(aviso.id, 'cor', t.cor);
+                                                    if (t.value === 'imagem' || t.value === 'video') {
+                                                        atualizarAviso(aviso.id, 'midia_tipo', t.value);
+                                                    }
+                                                }
+                                            }} style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #ccc', borderRadius: '4px' }}>
+                                                {tiposDisponiveis.map(t => <option key={t.value} value={t.value}>{t.icone} {t.label}</option>)}
+                                            </select>
+
+                                            <label style={{ marginTop: '5px' }}>Mensagem (Opcional se houver Mídia)</label>
                                             <textarea
                                                 value={aviso.mensagem}
                                                 onChange={e => atualizarAviso(aviso.id, 'mensagem', e.target.value)}
                                                 placeholder="Mensagem do aviso"
-                                                style={{ minHeight: '80px', marginTop: '5px' }}
+                                                style={{ minHeight: '60px', marginTop: '5px' }}
                                             />
+
+                                            <label style={{ marginTop: '10px' }}>URL da Mídia (Banner/Vídeo MP4)</label>
+                                            <input
+                                                type="url"
+                                                value={aviso.midia_url !== undefined ? aviso.midia_url : (aviso.video_url || aviso.imagem_url || '')}
+                                                onChange={e => atualizarAviso(aviso.id, 'midia_url', e.target.value)}
+                                                placeholder="https://exemplo.com/banner.png ou .mp4"
+                                                style={{ width: '100%', padding: '8px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
+                                            />
+
                                             <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
                                                 <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => salvarAvisoGeral(aviso)}>Salvar</button>
                                                 <button className="btn btn-secondary" style={{ backgroundColor: '#dc3545', border: 'none' }} onClick={() => excluirAviso(aviso.id)}>Excluir</button>
                                             </div>
                                         </div>
                                     ))}
-                                    
+
                                     {/* Formulário Novo Aviso */}
                                     <div className="dia-card" style={{ border: '2px dashed #aaa', backgroundColor: '#fcfcfc' }}>
                                         <h3 style={{ color: '#444' }}>Novo Aviso</h3>
                                         <label>Título</label>
-                                        <input type="text" value={novoAviso.titulo} onChange={e => setNovoAviso({...novoAviso, titulo: e.target.value})} style={{ width: '100%', padding: '8px', marginBottom: '15px', border: '1px solid #ccc', borderRadius: '4px' }} placeholder="Ex: Reunião de Pais" />
-                                        
+                                        <input type="text" value={novoAviso.titulo} onChange={e => setNovoAviso({ ...novoAviso, titulo: e.target.value })} style={{ width: '100%', padding: '8px', marginBottom: '15px', border: '1px solid #ccc', borderRadius: '4px' }} placeholder="Ex: Reunião de Pais" />
+
                                         <label>Tipo</label>
                                         <select value={novoAviso.tipo} onChange={e => {
                                             const t = tiposDisponiveis.find(x => x.value === e.target.value);
-                                            setNovoAviso({...novoAviso, tipo: t.value, icone: t.icone, cor: t.cor});
+                                            const mTipo = (t.value === 'imagem' || t.value === 'video') ? t.value : 'nenhum';
+                                            setNovoAviso({ ...novoAviso, tipo: t.value, icone: t.icone, cor: t.cor, midia_tipo: mTipo });
                                         }} style={{ width: '100%', padding: '8px', marginBottom: '15px', border: '1px solid #ccc', borderRadius: '4px' }}>
                                             {tiposDisponiveis.map(t => <option key={t.value} value={t.value}>{t.icone} {t.label}</option>)}
                                         </select>
@@ -498,10 +574,20 @@
                                         <label>Mensagem</label>
                                         <textarea
                                             value={novoAviso.mensagem}
-                                            onChange={e => setNovoAviso({...novoAviso, mensagem: e.target.value})}
+                                            onChange={e => setNovoAviso({ ...novoAviso, mensagem: e.target.value })}
                                             placeholder="Digite o texto do aviso..."
-                                            style={{ minHeight: '80px', marginTop: '5px' }}
+                                            style={{ minHeight: '60px', marginTop: '5px' }}
                                         />
+
+                                        <label style={{ marginTop: '10px' }}>URL da Mídia (Opcional)</label>
+                                        <input
+                                            type="url"
+                                            value={novoAviso.midia_url}
+                                            onChange={e => setNovoAviso({ ...novoAviso, midia_url: e.target.value })}
+                                            placeholder="Ex: https://exemplo.com/midia.mp4"
+                                            style={{ width: '100%', padding: '8px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
+                                        />
+
                                         <button className="btn btn-success" style={{ width: '100%', marginTop: '15px' }} onClick={() => salvarAvisoGeral(novoAviso)}>+ Adicionar Aviso</button>
                                     </div>
                                 </div>

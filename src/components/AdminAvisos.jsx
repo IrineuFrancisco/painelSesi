@@ -13,6 +13,11 @@ function AdminAvisos() {
     icone: '💡',
     titulo: '',
     mensagem: '',
+    tipo_midia: 'nenhum',
+    midia_url: '',
+    imagem_url: '',
+    video_url: '',
+    duracao: 10,
     cor: '#118AB2',
     ativo: true,
     ordem: 0
@@ -24,6 +29,8 @@ function AdminAvisos() {
     { value: 'lembrete', label: 'Lembrete', icone: '📚', cor: '#06D6A0' },
     { value: 'informacao', label: 'Informação', icone: '💡', cor: '#118AB2' },
     { value: 'saude', label: 'Saúde', icone: '🏥', cor: '#FF6B35' },
+    { value: 'imagem', label: 'Banner / Imagem', icone: '🖼️', cor: '#8E44AD' },
+    { value: 'video', label: 'Vídeo', icone: '🎬', cor: '#E67E22' },
     { value: 'cardapio', label: 'Cardápio', icone: '🍽️', cor: '#10B981' }
   ];
 
@@ -52,12 +59,42 @@ function AdminAvisos() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    let mediaUrl = (formData.midia_url || formData.video_url || formData.imagem_url || '').trim();
+    let tipoMidia = formData.tipo_midia || 'nenhum';
+
+    if (mediaUrl) {
+      const isVideo = mediaUrl.match(/\.(mp4|webm|ogv)(\?.*)?$/i) || mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be') || mediaUrl.includes('vimeo.com') || formData.tipo === 'video' || tipoMidia === 'video';
+      if (isVideo) {
+        tipoMidia = 'video';
+      } else {
+        tipoMidia = 'imagem';
+      }
+    } else if (formData.tipo === 'video') {
+      tipoMidia = 'video';
+    } else if (formData.tipo === 'imagem') {
+      tipoMidia = 'imagem';
+    }
+
+    const payload = {
+      tipo: formData.tipo,
+      icone: formData.icone,
+      titulo: formData.titulo,
+      mensagem: formData.mensagem,
+      tipo_midia: tipoMidia,
+      imagem_url: tipoMidia === 'imagem' ? mediaUrl : (formData.imagem_url || null),
+      video_url: tipoMidia === 'video' ? mediaUrl : (formData.video_url || null),
+      duracao: parseInt(formData.duracao) || 10,
+      cor: formData.cor,
+      ativo: formData.ativo,
+      ordem: formData.ordem
+    };
+
     try {
       if (editingAviso) {
         // Atualizar aviso existente
         const { error } = await supabase
           .from('avisos')
-          .update(formData)
+          .update(payload)
           .eq('id', editingAviso.id);
 
         if (error) throw error;
@@ -66,7 +103,7 @@ function AdminAvisos() {
         // Criar novo aviso
         const { error } = await supabase
           .from('avisos')
-          .insert([formData]);
+          .insert([payload]);
 
         if (error) throw error;
         alert('Aviso criado com sucesso!');
@@ -82,14 +119,22 @@ function AdminAvisos() {
 
   const handleEdit = (aviso) => {
     setEditingAviso(aviso);
+    const tMidia = aviso.tipo_midia || aviso.midia_tipo || (aviso.tipo === 'imagem' || aviso.tipo === 'video' ? aviso.tipo : 'nenhum');
+    const mUrl = aviso.video_url || aviso.imagem_url || aviso.midia_url || '';
+
     setFormData({
-      tipo: aviso.tipo,
-      icone: aviso.icone,
-      titulo: aviso.titulo,
-      mensagem: aviso.mensagem,
-      cor: aviso.cor,
-      ativo: aviso.ativo,
-      ordem: aviso.ordem
+      tipo: aviso.tipo || 'informacao',
+      icone: aviso.icone || '💡',
+      titulo: aviso.titulo || '',
+      mensagem: aviso.mensagem || '',
+      tipo_midia: tMidia,
+      midia_url: mUrl,
+      imagem_url: aviso.imagem_url || '',
+      video_url: aviso.video_url || '',
+      duracao: aviso.duracao || 10,
+      cor: aviso.cor || '#118AB2',
+      ativo: aviso.ativo ?? true,
+      ordem: aviso.ordem || 0
     });
     setShowForm(true);
   };
@@ -133,6 +178,11 @@ function AdminAvisos() {
       icone: '💡',
       titulo: '',
       mensagem: '',
+      tipo_midia: 'nenhum',
+      midia_url: '',
+      imagem_url: '',
+      video_url: '',
+      duracao: 10,
       cor: '#118AB2',
       ativo: true,
       ordem: 0
@@ -143,11 +193,13 @@ function AdminAvisos() {
 
   const handleTipoChange = (tipo) => {
     const tipoSelecionado = tiposDisponiveis.find(t => t.value === tipo);
+    const mTipo = (tipo === 'imagem' || tipo === 'video') ? tipo : formData.tipo_midia;
     setFormData({
       ...formData,
       tipo,
-      icone: tipoSelecionado.icone,
-      cor: tipoSelecionado.cor
+      icone: tipoSelecionado ? tipoSelecionado.icone : formData.icone,
+      cor: tipoSelecionado ? tipoSelecionado.cor : formData.cor,
+      tipo_midia: mTipo
     });
   };
 
@@ -239,9 +291,9 @@ function AdminAvisos() {
               <textarea
                 value={formData.mensagem}
                 onChange={(e) => setFormData({ ...formData, mensagem: e.target.value })}
-                rows="4"
-                placeholder={formData.tipo === 'cardapio' ? 'Exemplo: MANHÃ: Pão | ALMOÇO: Arroz e Feijão | TARDE: Fruta' : 'Digite a mensagem do aviso'}
-                required
+                rows="3"
+                placeholder={formData.tipo === 'cardapio' ? 'Exemplo: MANHÃ: Pão | ALMOÇO: Arroz e Feijão | TARDE: Fruta' : 'Digite a mensagem do aviso (opcional se houver mídia)'}
+                required={!formData.midia_url && formData.tipo !== 'imagem' && formData.tipo !== 'video'}
               />
               {formData.tipo === 'cardapio' && (
                 <small style={{color: '#666', marginTop: '5px', display: 'block'}}>
@@ -249,6 +301,52 @@ function AdminAvisos() {
                 </small>
               )}
             </div>
+
+            <div className="form-group">
+              <label>Duração de Exibição (segundos)</label>
+              <input
+                type="number"
+                value={formData.duracao}
+                onChange={(e) => setFormData({ ...formData, duracao: parseInt(e.target.value) || 10 })}
+                min="3"
+                max="300"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Tipo de Mídia</label>
+              <select
+                value={formData.tipo_midia}
+                onChange={(e) => setFormData({ ...formData, tipo_midia: e.target.value })}
+              >
+                <option value="nenhum">Nenhuma (Apenas texto)</option>
+                <option value="imagem">🖼️ Banner / Imagem (imagem_url)</option>
+                <option value="video">🎬 Vídeo MP4 / YouTube (video_url)</option>
+              </select>
+            </div>
+
+            {(formData.tipo_midia === 'imagem' || formData.tipo_midia === 'video' || formData.tipo === 'imagem' || formData.tipo === 'video') && (
+              <div className="form-group">
+                <label>URL da Mídia ({formData.tipo_midia === 'video' ? 'Vídeo' : 'Imagem'})</label>
+                <input
+                  type="url"
+                  value={formData.midia_url}
+                  onChange={(e) => setFormData({ ...formData, midia_url: e.target.value })}
+                  placeholder={formData.tipo_midia === 'video' ? 'https://exemplo.com/video.mp4' : 'https://exemplo.com/banner.png'}
+                />
+                {formData.midia_url && (
+                  <div style={{ marginTop: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                    <small style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>Pré-visualização da Mídia:</small>
+                    {(formData.tipo_midia === 'video' || formData.tipo === 'video' || formData.midia_url.includes('.mp4')) ? (
+                      <video src={formData.midia_url} controls style={{ maxWidth: '100%', maxHeight: '180px', borderRadius: '6px' }} />
+                    ) : (
+                      <img src={formData.midia_url} alt="Preview" style={{ maxWidth: '100%', maxHeight: '180px', borderRadius: '6px', objectFit: 'contain' }} />
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="form-group-checkbox">
               <label>

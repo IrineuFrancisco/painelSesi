@@ -72,10 +72,12 @@ function App() {
             serverTime = new Date(dateHeader).getTime();
             console.log("Hora do servidor sincronizada com sucesso:", new Date(serverTime));
           } else {
-            console.warn("O servidor não retornou o cabeçalho 'Date'. A hora local continuará sendo usada.");
+            console.warn("O servidor não retornou o cabeçalho 'Date'. A hora anterior será mantida.");
+            return;
           }
         } catch (localError) {
-          console.warn("Falha ao buscar data do servidor de hospedagem. Usando hora local.", localError);
+          console.warn("Falha ao buscar data do servidor de hospedagem. Mantendo sincronização anterior.", localError);
+          return;
         }
 
         const end = Date.now();
