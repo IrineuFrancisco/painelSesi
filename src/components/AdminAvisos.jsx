@@ -56,10 +56,28 @@ function AdminAvisos() {
     }
   };
 
+  const convertDriveUrl = (rawUrl) => {
+    if (!rawUrl) return '';
+    const strUrl = rawUrl.trim();
+    if (strUrl.includes('drive.google.com') || strUrl.includes('docs.google.com')) {
+      let fileId = null;
+      if (strUrl.includes('/file/d/')) {
+        fileId = strUrl.split('/file/d/')[1]?.split('/')[0]?.split('?')[0];
+      } else if (strUrl.includes('id=')) {
+        fileId = strUrl.split('id=')[1]?.split('&')[0]?.split('#')[0];
+      }
+      if (fileId) {
+        return `https://lh3.googleusercontent.com/d/${fileId.trim()}`;
+      }
+    }
+    return strUrl;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    let mediaUrl = (formData.midia_url || formData.video_url || formData.imagem_url || '').trim();
+    let rawMediaUrl = (formData.midia_url || formData.video_url || formData.imagem_url || '').trim();
+    let mediaUrl = convertDriveUrl(rawMediaUrl);
     let tipoMidia = formData.tipo_midia || 'nenhum';
 
     if (mediaUrl) {
@@ -339,9 +357,24 @@ function AdminAvisos() {
                   <div style={{ marginTop: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                     <small style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>Pré-visualização da Mídia:</small>
                     {(formData.tipo_midia === 'video' || formData.tipo === 'video' || formData.midia_url.includes('.mp4')) ? (
-                      <video src={formData.midia_url} controls style={{ maxWidth: '100%', maxHeight: '180px', borderRadius: '6px' }} />
+                      <video src={convertDriveUrl(formData.midia_url)} controls style={{ maxWidth: '100%', maxHeight: '180px', borderRadius: '6px' }} />
                     ) : (
-                      <img src={formData.midia_url} alt="Preview" style={{ maxWidth: '100%', maxHeight: '180px', borderRadius: '6px', objectFit: 'contain' }} />
+                      <img
+                        src={convertDriveUrl(formData.midia_url)}
+                        alt="Preview"
+                        referrerPolicy="no-referrer"
+                        style={{ maxWidth: '100%', maxHeight: '180px', borderRadius: '6px', objectFit: 'contain' }}
+                        onError={(e) => {
+                          const url = convertDriveUrl(formData.midia_url);
+                          if (url.includes('lh3.googleusercontent.com/d/')) {
+                            const fileId = url.split('/d/')[1];
+                            if (fileId && !e.target.dataset.triedFallback) {
+                              e.target.dataset.triedFallback = 'true';
+                              e.target.src = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
+                            }
+                          }
+                        }}
+                      />
                     )}
                   </div>
                 )}

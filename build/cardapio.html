@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SESI SP | Gerenciador de Cardápios</title>
+    <title>SESI SP | Gerenciador de Cardápios e Avisos</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -71,7 +71,6 @@
         /* Grid de Cardápios */
         .dias-grid {
             display: grid;
-            /* grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); */
             gap: 20px;
             margin-bottom: 30px;
         }
@@ -86,7 +85,7 @@
         }
 
         .dia-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
             border-color: var(--sesi-red);
         }
 
@@ -114,14 +113,14 @@
             padding: 12px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            min-height: 120px;
+            min-height: 100px;
             font-family: inherit;
             transition: border 0.3s;
         }
 
-        textarea:focus {
+        textarea:focus, input[type="text"]:focus, input[type="url"]:focus, select:focus {
             outline: none;
-            border: 2px solid var(--sesi-red);
+            border-color: var(--sesi-red);
         }
 
         /* Botões Estilo SESI */
@@ -175,11 +174,11 @@
         .preview-box {
             background: #fcfcfc;
             border: 1px dashed #ccc;
-            padding: 10px;
+            padding: 12px;
             margin: 15px 0;
             font-size: 0.85rem;
             color: #444;
-            border-radius: 4px;
+            border-radius: 6px;
         }
 
         /* Mensagens de Alerta */
@@ -223,12 +222,19 @@
 
 <body>
     <header class="top-header">
-        <h1>SESI <strong>SP</strong> | Nutrição</h1>
+        <h1>SESI <strong>SP</strong> | Nutrição & Comunicação</h1>
     </header>
 
     <div id="root"></div>
 
-    <script type="text/babel">
+    <script>
+        Babel.registerPreset('classic-react', {
+            presets: [
+                [Babel.availablePresets['react'], { runtime: 'classic' }]
+            ]
+        });
+    </script>
+    <script type="text/babel" data-presets="env,classic-react">
         const { useState, useEffect } = React;
 
         function App() {
@@ -238,7 +244,7 @@
             const [configured, setConfigured] = useState(false);
             const [cardapios, setCardapios] = useState([]);
             const [outrosAvisos, setOutrosAvisos] = useState([]);
-            const [novoAviso, setNovoAviso] = useState({ tipo: 'informacao', icone: '💡', titulo: '', mensagem: '', cor: '#118AB2', ativo: true, ordem: 10 });
+            const [novoAviso, setNovoAviso] = useState({ tipo: 'informacao', icone: '💡', titulo: '', mensagem: '', midia_tipo: 'nenhum', midia_url: '', duracao: 10, cor: '#118AB2', ativo: true, ordem: 10 });
             const [loading, setLoading] = useState(false);
             const [message, setMessage] = useState({ type: '', text: '' });
 
@@ -247,7 +253,9 @@
                 { value: 'evento', label: 'Evento', icone: '🎉', cor: '#FEC601' },
                 { value: 'lembrete', label: 'Lembrete', icone: '📚', cor: '#06D6A0' },
                 { value: 'informacao', label: 'Informação', icone: '💡', cor: '#118AB2' },
-                { value: 'saude', label: 'Saúde', icone: '🏥', cor: '#FF6B35' }
+                { value: 'saude', label: 'Saúde', icone: '🏥', cor: '#FF6B35' },
+                { value: 'imagem', label: 'Banner / Imagem', icone: '🖼️', cor: '#8E44AD' },
+                { value: 'video', label: 'Vídeo', icone: '🎬', cor: '#E67E22' }
             ];
 
             const diasSemana = [
@@ -299,8 +307,10 @@
                             tipo: 'cardapio',
                             titulo: dia.nome,
                             mensagem: '',
+                            imagem_url: '',
+                            tipo_midia: 'nenhum',
                             icone: '🍽️',
-                            cor: '#E30613',
+                            cor: '#06D6A0',
                             ativo: true,
                             ordem: dia.ordem
                         };
@@ -314,8 +324,25 @@
                 }
             };
 
-            const atualizarTexto = (ordem, val) => {
-                setCardapios(cardapios.map(c => c.ordem === ordem ? { ...c, mensagem: val } : c));
+            const convertDriveUrl = (rawUrl) => {
+                if (!rawUrl) return '';
+                const strUrl = rawUrl.trim();
+                if (strUrl.includes('drive.google.com') || strUrl.includes('docs.google.com')) {
+                    let fileId = null;
+                    if (strUrl.includes('/file/d/')) {
+                        fileId = strUrl.split('/file/d/')[1]?.split('/')[0]?.split('?')[0];
+                    } else if (strUrl.includes('id=')) {
+                        fileId = strUrl.split('id=')[1]?.split('&')[0]?.split('#')[0];
+                    }
+                    if (fileId) {
+                        return `https://lh3.googleusercontent.com/d/${fileId.trim()}`;
+                    }
+                }
+                return strUrl;
+            };
+
+            const atualizarCampoCardapio = (ordem, campo, val) => {
+                setCardapios(cardapios.map(c => c.ordem === ordem ? { ...c, [campo]: val } : c));
             };
 
             const atualizarAviso = (id, campo, val) => {
@@ -324,6 +351,22 @@
 
             const salvarNoBanco = async (item) => {
                 try {
+                    const rawMediaUrl = (item.imagem_url || item.midia_url || '').trim();
+                    const mediaUrl = convertDriveUrl(rawMediaUrl);
+                    const tipoMidia = mediaUrl ? 'imagem' : 'nenhum';
+
+                    const payload = {
+                        tipo: 'cardapio',
+                        titulo: item.titulo,
+                        mensagem: item.mensagem,
+                        imagem_url: mediaUrl || null,
+                        tipo_midia: tipoMidia,
+                        icone: item.icone || '🍽️',
+                        cor: item.cor || '#06D6A0',
+                        ativo: item.ativo !== undefined ? item.ativo : true,
+                        ordem: item.ordem
+                    };
+
                     const { data: existe } = await supabase
                         .from('avisos')
                         .select('id')
@@ -332,31 +375,62 @@
                         .maybeSingle();
 
                     if (existe) {
-                        await supabase.from('avisos').update({ mensagem: item.mensagem }).eq('id', existe.id);
+                        await supabase.from('avisos').update(payload).eq('id', existe.id);
                     } else {
-                        await supabase.from('avisos').insert([item]);
+                        await supabase.from('avisos').insert([payload]);
                     }
-                    showMessage('success', `${item.titulo} atualizado!`);
+                    showMessage('success', `${item.titulo} atualizado com sucesso!`);
                     carregarDados();
                 } catch (e) {
-                    showMessage('error', 'Erro ao salvar.');
+                    showMessage('error', 'Erro ao salvar cardápio: ' + e.message);
                 }
             };
 
             const salvarAvisoGeral = async (item) => {
                 try {
+                    const rawMediaUrl = item.midia_url !== undefined
+                        ? item.midia_url
+                        : (item.video_url || item.imagem_url || '');
+                    const mediaUrl = convertDriveUrl((rawMediaUrl || '').trim());
+
+                    let tipoMidia = 'nenhum';
+
+                    if (mediaUrl) {
+                        const isVideo = Boolean(mediaUrl.match(/\.(mp4|webm|ogv)(\?.*)?$/i)) ||
+                            mediaUrl.includes('youtube.com') ||
+                            mediaUrl.includes('youtu.be') ||
+                            mediaUrl.includes('vimeo.com') ||
+                            item.tipo === 'video';
+
+                        if (isVideo) {
+                            tipoMidia = 'video';
+                        } else {
+                            tipoMidia = 'imagem';
+                        }
+                    } else if (item.tipo === 'video') {
+                        tipoMidia = 'video';
+                    } else if (item.tipo === 'imagem') {
+                        tipoMidia = 'imagem';
+                    }
+
+                    const payload = {
+                        titulo: item.titulo,
+                        mensagem: item.mensagem,
+                        tipo_midia: tipoMidia,
+                        imagem_url: tipoMidia === 'imagem' ? mediaUrl : null,
+                        video_url: tipoMidia === 'video' ? mediaUrl : null,
+                        duracao: parseInt(item.duracao) || 10,
+                        ativo: item.ativo,
+                        tipo: item.tipo,
+                        cor: item.cor,
+                        icone: item.icone
+                    };
+
                     if (item.id) {
-                        await supabase.from('avisos').update({
-                            titulo: item.titulo,
-                            mensagem: item.mensagem,
-                            ativo: item.ativo,
-                            tipo: item.tipo,
-                            cor: item.cor,
-                            icone: item.icone
-                        }).eq('id', item.id);
+                        await supabase.from('avisos').update(payload).eq('id', item.id);
                     } else {
-                        await supabase.from('avisos').insert([item]);
-                        setNovoAviso({ tipo: 'informacao', icone: '💡', titulo: '', mensagem: '', cor: '#118AB2', ativo: true, ordem: 10 });
+                        await supabase.from('avisos').insert([payload]);
+                        setNovoAviso({ tipo: 'informacao', icone: '💡', titulo: '', mensagem: '', tipo_midia: 'nenhum', midia_url: '', duracao: 10, cor: '#118AB2', ativo: true, ordem: 10 });
                     }
                     showMessage('success', item.id ? 'Aviso atualizado!' : 'Aviso criado!');
                     carregarDados();
@@ -409,7 +483,7 @@
                         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap' }}>
                             <div>
                                 <h2>Gestão de Cardápio Escolar</h2>
-                                <p className="subtitle">Edite o que será servido em cada dia da semana.</p>
+                                <p className="subtitle">Edite o texto e adicione URLs de imagens para cada dia da semana.</p>
                             </div>
                             <button className="btn btn-secondary" onClick={() => { localStorage.clear(); location.reload(); }}>Sair</button>
                         </header>
@@ -423,67 +497,163 @@
                         {loading ? <p>Carregando dados...</p> : (
                             <>
                                 <div className="dias-grid">
-                                    {cardapios.map(item => (
-                                        <div key={item.ordem} className="dia-card">
-                                            <h3>
-                                                {item.titulo}
-                                                <span className={`status-badge ${item.ativo ? 'status-ativo' : 'status-inativo'}`}>
-                                                    {item.ativo ? 'Publicado' : 'Oculto'}
-                                                </span>
-                                            </h3>
-                                            <label>Descrição do Cardápio</label>
-                                            <textarea
-                                                value={item.mensagem}
-                                                onChange={e => atualizarTexto(item.ordem, e.target.value)}
-                                                placeholder="Ex: Arroz, feijão, frango grelhado e salada."
-                                            />
-                                            {item.mensagem && <div className="preview-box"><strong>Visualização:</strong><br />{item.mensagem}</div>}
-                                            <button
-                                                className="btn btn-primary"
-                                                style={{ width: '100%', marginTop: '10px' }}
-                                                onClick={() => salvarNoBanco(item)}
-                                            >
-                                                Atualizar {item.titulo.split('-')[0]}
-                                            </button>
-                                        </div>
-                                    ))}
+                                    {cardapios.map(item => {
+                                        const rawUrl = item.imagem_url !== undefined ? item.imagem_url : (item.midia_url || '');
+                                        const mediaPreview = convertDriveUrl(rawUrl);
+                                        return (
+                                            <div key={item.ordem} className="dia-card">
+                                                <h3>
+                                                    {item.titulo}
+                                                    <span className={`status-badge ${item.ativo ? 'status-ativo' : 'status-inativo'}`}>
+                                                        {item.ativo ? 'Publicado' : 'Oculto'}
+                                                    </span>
+                                                </h3>
+                                                <label>Descrição do Cardápio</label>
+                                                <textarea
+                                                    value={item.mensagem || ''}
+                                                    onChange={e => atualizarCampoCardapio(item.ordem, 'mensagem', e.target.value)}
+                                                    placeholder="Ex: MANHÃ: Suco... | ALMOÇO: Arroz e Feijão... | TARDE: Fruta"
+                                                />
+
+                                                <label style={{ marginTop: '12px' }}>URL da Imagem / Banner do Cardápio (Opcional)</label>
+                                                <input
+                                                    type="url"
+                                                    value={rawUrl}
+                                                    onChange={e => atualizarCampoCardapio(item.ordem, 'imagem_url', e.target.value)}
+                                                    placeholder="https://drive.google.com/... ou https://exemplo.com/imagem.png"
+                                                    style={{ width: '100%', padding: '8px', marginTop: '4px', border: '1px solid #ccc', borderRadius: '4px' }}
+                                                />
+
+                                                {(item.mensagem || mediaPreview) && (
+                                                    <div className="preview-box">
+                                                        <strong>Visualização:</strong>
+                                                        {mediaPreview && (
+                                                            <div style={{ marginTop: '8px', marginBottom: '8px', textAlign: 'center' }}>
+                                                                <img
+                                                                    src={mediaPreview}
+                                                                    alt="Banner do Cardápio"
+                                                                    referrerPolicy="no-referrer"
+                                                                    style={{ maxWidth: '100%', maxHeight: '180px', borderRadius: '6px', objectFit: 'contain' }}
+                                                                    onError={(e) => {
+                                                                        if (mediaPreview.includes('lh3.googleusercontent.com/d/')) {
+                                                                            const fileId = mediaPreview.split('/d/')[1];
+                                                                            if (fileId && !e.target.dataset.triedFallback) {
+                                                                                e.target.dataset.triedFallback = 'true';
+                                                                                e.target.src = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
+                                                                            }
+                                                                        }
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        )}
+                                                        {item.mensagem && <div style={{ whiteSpace: 'pre-wrap' }}>{item.mensagem}</div>}
+                                                    </div>
+                                                )}
+
+                                                <button
+                                                    className="btn btn-primary"
+                                                    style={{ width: '100%', marginTop: '12px' }}
+                                                    onClick={() => salvarNoBanco(item)}
+                                                >
+                                                    Atualizar {item.titulo.split('-')[0]}
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
 
                                 <h2 style={{ marginTop: '40px', marginBottom: '20px', borderTop: '1px solid #ccc', paddingTop: '20px', color: '#2D2D2D' }}>Gestão de Avisos Gerais</h2>
                                 <p className="subtitle" style={{ marginBottom: '20px' }}>Gerencie os informativos escolares que aparecerão no painel.</p>
                                 <div className="dias-grid">
-                                    {outrosAvisos.map(aviso => (
-                                        <div key={aviso.id} className="dia-card" style={{ borderLeft: `4px solid ${aviso.cor}` }}>
-                                            <h3 style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                                <input type="text" value={aviso.titulo} onChange={e => atualizarAviso(aviso.id, 'titulo', e.target.value)} style={{ flex: 1, padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
-                                                <button className={`btn ${aviso.ativo ? 'btn-success' : 'btn-secondary'}`} style={{ padding: '8px 12px', fontSize: '0.8rem' }} onClick={() => atualizarAviso(aviso.id, 'ativo', !aviso.ativo)}>
-                                                    {aviso.ativo ? 'Ativo' : 'Inativo'}
-                                                </button>
-                                            </h3>
-                                            <label style={{ marginTop: '10px' }}>Mensagem</label>
-                                            <textarea
-                                                value={aviso.mensagem}
-                                                onChange={e => atualizarAviso(aviso.id, 'mensagem', e.target.value)}
-                                                placeholder="Mensagem do aviso"
-                                                style={{ minHeight: '80px', marginTop: '5px' }}
-                                            />
-                                            <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                                                <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => salvarAvisoGeral(aviso)}>Salvar</button>
-                                                <button className="btn btn-secondary" style={{ backgroundColor: '#dc3545', border: 'none' }} onClick={() => excluirAviso(aviso.id)}>Excluir</button>
+                                    {outrosAvisos.map(aviso => {
+                                        const mediaUrl = aviso.midia_url !== undefined ? aviso.midia_url : (aviso.video_url || aviso.imagem_url || '');
+                                        const mediaPreview = convertDriveUrl(mediaUrl);
+                                        const isVideo = Boolean(mediaPreview.match(/\.(mp4|webm|ogv)(\?.*)?$/i)) || mediaPreview.includes('youtube.com') || mediaPreview.includes('youtu.be') || aviso.tipo === 'video' || aviso.tipo_midia === 'video';
+
+                                        return (
+                                            <div key={aviso.id} className="dia-card" style={{ borderLeft: `4px solid ${aviso.cor}` }}>
+                                                <h3 style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                                    <input type="text" value={aviso.titulo || ''} onChange={e => atualizarAviso(aviso.id, 'titulo', e.target.value)} style={{ flex: 1, padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+                                                    <button className={`btn ${aviso.ativo ? 'btn-success' : 'btn-secondary'}`} style={{ padding: '8px 12px', fontSize: '0.8rem' }} onClick={() => atualizarAviso(aviso.id, 'ativo', !aviso.ativo)}>
+                                                        {aviso.ativo ? 'Ativo' : 'Inativo'}
+                                                    </button>
+                                                </h3>
+                                                <label style={{ marginTop: '10px' }}>Tipo</label>
+                                                <select value={aviso.tipo} onChange={e => {
+                                                    const t = tiposDisponiveis.find(x => x.value === e.target.value);
+                                                    atualizarAviso(aviso.id, 'tipo', t.value);
+                                                    if (t) {
+                                                        atualizarAviso(aviso.id, 'icone', t.icone);
+                                                        atualizarAviso(aviso.id, 'cor', t.cor);
+                                                        if (t.value === 'imagem' || t.value === 'video') {
+                                                            atualizarAviso(aviso.id, 'midia_tipo', t.value);
+                                                        }
+                                                    }
+                                                }} style={{ width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #ccc', borderRadius: '4px' }}>
+                                                    {tiposDisponiveis.map(t => <option key={t.value} value={t.value}>{t.icone} {t.label}</option>)}
+                                                </select>
+
+                                                <label style={{ marginTop: '5px' }}>Mensagem (Opcional se houver Mídia)</label>
+                                                <textarea
+                                                    value={aviso.mensagem || ''}
+                                                    onChange={e => atualizarAviso(aviso.id, 'mensagem', e.target.value)}
+                                                    placeholder="Mensagem do aviso"
+                                                    style={{ minHeight: '60px', marginTop: '5px' }}
+                                                />
+
+                                                <label style={{ marginTop: '10px' }}>URL da Mídia (Banner/Vídeo MP4/Google Drive)</label>
+                                                <input
+                                                    type="url"
+                                                    value={mediaUrl}
+                                                    onChange={e => atualizarAviso(aviso.id, 'midia_url', e.target.value)}
+                                                    placeholder="https://exemplo.com/banner.png ou link do Google Drive"
+                                                    style={{ width: '100%', padding: '8px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
+                                                />
+
+                                                {mediaPreview && (
+                                                    <div style={{ marginTop: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                                                        <small style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px', color: '#555' }}>Pré-visualização da Mídia:</small>
+                                                        {isVideo ? (
+                                                            <video src={mediaPreview} controls style={{ maxWidth: '100%', maxHeight: '180px', borderRadius: '6px' }} />
+                                                        ) : (
+                                                            <img
+                                                                src={mediaPreview}
+                                                                alt="Preview"
+                                                                referrerPolicy="no-referrer"
+                                                                style={{ maxWidth: '100%', maxHeight: '180px', borderRadius: '6px', objectFit: 'contain' }}
+                                                                onError={(e) => {
+                                                                    if (mediaPreview.includes('lh3.googleusercontent.com/d/')) {
+                                                                        const fileId = mediaPreview.split('/d/')[1];
+                                                                        if (fileId && !e.target.dataset.triedFallback) {
+                                                                            e.target.dataset.triedFallback = 'true';
+                                                                            e.target.src = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
+                                                                        }
+                                                                    }
+                                                                }}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                                    <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => salvarAvisoGeral(aviso)}>Salvar</button>
+                                                    <button className="btn btn-secondary" style={{ backgroundColor: '#dc3545', border: 'none' }} onClick={() => excluirAviso(aviso.id)}>Excluir</button>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
-                                    
+                                        );
+                                    })}
+
                                     {/* Formulário Novo Aviso */}
                                     <div className="dia-card" style={{ border: '2px dashed #aaa', backgroundColor: '#fcfcfc' }}>
                                         <h3 style={{ color: '#444' }}>Novo Aviso</h3>
                                         <label>Título</label>
-                                        <input type="text" value={novoAviso.titulo} onChange={e => setNovoAviso({...novoAviso, titulo: e.target.value})} style={{ width: '100%', padding: '8px', marginBottom: '15px', border: '1px solid #ccc', borderRadius: '4px' }} placeholder="Ex: Reunião de Pais" />
-                                        
+                                        <input type="text" value={novoAviso.titulo} onChange={e => setNovoAviso({ ...novoAviso, titulo: e.target.value })} style={{ width: '100%', padding: '8px', marginBottom: '15px', border: '1px solid #ccc', borderRadius: '4px' }} placeholder="Ex: Reunião de Pais" />
+
                                         <label>Tipo</label>
                                         <select value={novoAviso.tipo} onChange={e => {
                                             const t = tiposDisponiveis.find(x => x.value === e.target.value);
-                                            setNovoAviso({...novoAviso, tipo: t.value, icone: t.icone, cor: t.cor});
+                                            const mTipo = (t.value === 'imagem' || t.value === 'video') ? t.value : 'nenhum';
+                                            setNovoAviso({ ...novoAviso, tipo: t.value, icone: t.icone, cor: t.cor, midia_tipo: mTipo });
                                         }} style={{ width: '100%', padding: '8px', marginBottom: '15px', border: '1px solid #ccc', borderRadius: '4px' }}>
                                             {tiposDisponiveis.map(t => <option key={t.value} value={t.value}>{t.icone} {t.label}</option>)}
                                         </select>
@@ -491,10 +661,46 @@
                                         <label>Mensagem</label>
                                         <textarea
                                             value={novoAviso.mensagem}
-                                            onChange={e => setNovoAviso({...novoAviso, mensagem: e.target.value})}
+                                            onChange={e => setNovoAviso({ ...novoAviso, mensagem: e.target.value })}
                                             placeholder="Digite o texto do aviso..."
-                                            style={{ minHeight: '80px', marginTop: '5px' }}
+                                            style={{ minHeight: '60px', marginTop: '5px' }}
                                         />
+
+                                        <label style={{ marginTop: '10px' }}>URL da Mídia (Imagem / Banner / Vídeo)</label>
+                                        <input
+                                            type="url"
+                                            value={novoAviso.midia_url || ''}
+                                            onChange={e => setNovoAviso({ ...novoAviso, midia_url: e.target.value })}
+                                            placeholder="Ex: https://drive.google.com/... ou https://exemplo.com/midia.png"
+                                            style={{ width: '100%', padding: '8px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
+                                        />
+
+                                        {novoAviso.midia_url && (
+                                            <div style={{ marginTop: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                                                <small style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px', color: '#555' }}>Pré-visualização da Mídia:</small>
+                                                {Boolean(convertDriveUrl(novoAviso.midia_url).match(/\.(mp4|webm|ogv)(\?.*)?$/i)) || novoAviso.tipo === 'video' ? (
+                                                    <video src={convertDriveUrl(novoAviso.midia_url)} controls style={{ maxWidth: '100%', maxHeight: '180px', borderRadius: '6px' }} />
+                                                ) : (
+                                                    <img
+                                                        src={convertDriveUrl(novoAviso.midia_url)}
+                                                        alt="Preview"
+                                                        referrerPolicy="no-referrer"
+                                                        style={{ maxWidth: '100%', maxHeight: '180px', borderRadius: '6px', objectFit: 'contain' }}
+                                                        onError={(e) => {
+                                                            const url = convertDriveUrl(novoAviso.midia_url);
+                                                            if (url.includes('lh3.googleusercontent.com/d/')) {
+                                                                const fileId = url.split('/d/')[1];
+                                                                if (fileId && !e.target.dataset.triedFallback) {
+                                                                    e.target.dataset.triedFallback = 'true';
+                                                                    e.target.src = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
+                                                                }
+                                                            }
+                                                        }}
+                                                    />
+                                                )}
+                                            </div>
+                                        )}
+
                                         <button className="btn btn-success" style={{ width: '100%', marginTop: '15px' }} onClick={() => salvarAvisoGeral(novoAviso)}>+ Adicionar Aviso</button>
                                     </div>
                                 </div>

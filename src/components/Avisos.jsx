@@ -169,18 +169,19 @@ function Avisos({ tipoExibicao, horaAtual = new Date() }) {
 
   const convertDriveUrl = (rawUrl) => {
     if (!rawUrl) return '';
-    if (rawUrl.includes('drive.google.com')) {
+    const strUrl = rawUrl.trim();
+    if (strUrl.includes('drive.google.com') || strUrl.includes('docs.google.com')) {
       let fileId = null;
-      if (rawUrl.includes('/file/d/')) {
-        fileId = rawUrl.split('/file/d/')[1]?.split('/')[0]?.split('?')[0];
-      } else if (rawUrl.includes('id=')) {
-        fileId = rawUrl.split('id=')[1]?.split('&')[0];
+      if (strUrl.includes('/file/d/')) {
+        fileId = strUrl.split('/file/d/')[1]?.split('/')[0]?.split('?')[0];
+      } else if (strUrl.includes('id=')) {
+        fileId = strUrl.split('id=')[1]?.split('&')[0]?.split('#')[0];
       }
       if (fileId) {
         return `https://lh3.googleusercontent.com/d/${fileId.trim()}`;
       }
     }
-    return rawUrl;
+    return strUrl;
   };
 
   const renderMidia = (aviso) => {
@@ -243,6 +244,16 @@ function Avisos({ tipoExibicao, horaAtual = new Date() }) {
           src={url}
           alt={aviso.titulo || "Banner Informativo"}
           className="aviso-midia-img"
+          referrerPolicy="no-referrer"
+          onError={(e) => {
+            if (url.includes('lh3.googleusercontent.com/d/')) {
+              const fileId = url.split('/d/')[1];
+              if (fileId && !e.target.dataset.triedFallback) {
+                e.target.dataset.triedFallback = 'true';
+                e.target.src = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
+              }
+            }
+          }}
         />
       </div>
     );
@@ -261,10 +272,12 @@ function Avisos({ tipoExibicao, horaAtual = new Date() }) {
 
       // Aqui usamos tipoExibicao que vem lá do topo do componente
       const labelProcurada = filtro[tipoExibicao] || 'ALMOÇO';
+      const temMidiaCardapio = Boolean(aviso.imagem_url || aviso.video_url || aviso.midia_url);
 
       return (
         <div className="cardapio-container">
           <div className="cardapio-hoje-tag">CARDÁPIO DE HOJE</div>
+          {temMidiaCardapio && renderMidia(aviso)}
           {refeicoes.map((ref, idx) => {
             const [titulo, itens] = ref.split(':');
             
