@@ -40,14 +40,15 @@ function Avisos({ tipoExibicao, horaAtual = new Date() }) {
             "Authorization": "Bearer sb_publishable_rZf4HnUkAiO16oaQwserjg_Axj-2BwL"
           }
         }
-      );
-      if (supabaseRes.ok) {
+      ).catch(() => null);
+
+      if (supabaseRes && supabaseRes.ok) {
         const supabaseData = await supabaseRes.json();
         setTodosAvisos(supabaseData || []);
         setError(null);
         return;
       }
-      throw new Error('Erro na resposta do Supabase');
+      throw new Error('Supabase indisponível');
     } catch (sbErr) {
       console.warn('Supabase indisponível. Buscando do arquivo avisos.json local...', sbErr.message);
       try {
