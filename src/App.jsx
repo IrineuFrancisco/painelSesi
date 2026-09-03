@@ -51,54 +51,56 @@ function App() {
     horarios = horariosTarde;
   }
 
-  // Sincroniza a hora do painel com o servidor onde está hospedado
+  // Sincroniza a hora do painel com a hora exata do servidor Linux de hospedagem
   useEffect(() => {
     const syncTime = async () => {
       try {
         const start = Date.now();
-        let serverTime = start; // Fallback para a hora local
+        let serverTime = null;
         
         try {
-          // Usa um parâmetro dinâmico para ignorar cache de CDN ou navegador
           const cacheBuster = Date.now();
-          const resLocal = await fetch(`${window.location.origin}/?_t=${cacheBuster}`, { 
-            method: 'GET', 
+          // Faz requisição HEAD para pegar os cabeçalhos de resposta do servidor HTTP
+          let res = await fetch(`/?_t=${cacheBuster}`, { 
+            method: 'HEAD', 
             cache: 'no-store' 
-          });
+          }).catch(() => null);
+
+          // Se HEAD falhar, tenta GET no avisos.json
+          if (!res || !res.ok) {
+            res = await fetch(`/avisos.json?_t=${cacheBuster}`, { 
+              method: 'GET', 
+              cache: 'no-store' 
+            }).catch(() => null);
+          }
           
-          const dateHeader = resLocal.headers.get('Date') || resLocal.headers.get('date');
-          
-          if (dateHeader) {
-            serverTime = new Date(dateHeader).getTime();
-            console.log("Hora do servidor sincronizada com sucesso:", new Date(serverTime));
-          } else {
-            console.warn("O servidor não retornou o cabeçalho 'Date'. A hora anterior será mantida.");
-            return;
+          if (res) {
+            const dateHeader = res.headers.get('Date') || res.headers.get('date');
+            if (dateHeader) {
+              serverTime = new Date(dateHeader).getTime();
+            }
           }
         } catch (localError) {
-          console.warn("Falha ao buscar data do servidor de hospedagem. Mantendo sincronização anterior.", localError);
-          return;
+          console.warn("Falha ao buscar data do servidor. Mantendo relógio anterior.", localError);
         }
 
-        const end = Date.now();
-        
-        // Estima a latência (metade do tempo de ida e volta)
-        const latency = (end - start) / 2;
-        
-        // Calcula a diferença (offset) entre a hora local e a hora real
-        const offset = serverTime - (start + latency);
-        setTimeOffset(offset);
-        
-        // Atualiza a hora atual imediatamente
-        setHoraAtual(new Date(Date.now() + offset));
+        if (serverTime) {
+          const end = Date.now();
+          const latency = Math.max(0, (end - start) / 2);
+          const offset = (serverTime + latency) - Date.now();
+          
+          setTimeOffset(offset);
+          setHoraAtual(new Date(Date.now() + offset));
+          console.log("⏰ Relógio sincronizado com a hora do servidor Linux:", new Date(Date.now() + offset).toLocaleString('pt-BR'));
+        }
       } catch (error) {
-        console.error("Erro ao sincronizar o relógio:", error);
+        console.error("Erro ao sincronizar o relógio com o servidor:", error);
       }
     };
 
     syncTime();
-    // Ressincroniza a cada 1 hora para evitar que o relógio perca a precisão
-    const syncInterval = setInterval(syncTime, 60 * 60 * 1000);
+    // Ressincroniza a cada 5 minutos para manter precisão total com o servidor
+    const syncInterval = setInterval(syncTime, 5 * 60 * 1000);
     return () => clearInterval(syncInterval);
   }, []);
 
