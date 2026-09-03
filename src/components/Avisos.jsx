@@ -248,10 +248,15 @@ function Avisos({ tipoExibicao, horaAtual = new Date() }) {
           onError={(e) => {
             if (url.includes('lh3.googleusercontent.com/d/')) {
               const fileId = url.split('/d/')[1];
-              if (fileId && !e.target.dataset.triedFallback) {
-                e.target.dataset.triedFallback = 'true';
+              if (fileId && !e.target.dataset.triedFallback1) {
+                e.target.dataset.triedFallback1 = 'true';
                 e.target.src = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
+                return;
               }
+            }
+            if (!e.target.dataset.triedFallback2) {
+              e.target.dataset.triedFallback2 = 'true';
+              e.target.src = '/juventudes.png';
             }
           }}
         />
