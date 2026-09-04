@@ -291,12 +291,25 @@
             const carregarDados = async () => {
                 setLoading(true);
                 try {
-                    const { data, error } = await supabase
-                        .from('avisos')
-                        .select('*')
-                        .order('ordem', { ascending: true });
+                    let data = null;
+                    // Tenta ler do arquivo local avisos.json em primeiro lugar
+                    try {
+                        const resLocal = await fetch(`/avisos.json?_t=${Date.now()}`, { cache: 'no-store' });
+                        if (resLocal.ok) {
+                            data = await resLocal.json();
+                        }
+                    } catch (errLocal) {}
 
-                    if (error) throw error;
+                    // Se não conseguir local e o supabase estiver configurado, tenta remoto
+                    if ((!data || data.length === 0) && supabase) {
+                        const { data: dataSb } = await supabase
+                            .from('avisos')
+                            .select('*')
+                            .order('ordem', { ascending: true });
+                        data = dataSb;
+                    }
+
+                    if (!data) return;
 
                     const dataCardapios = data.filter(d => d.tipo === 'cardapio');
                     const dataAvisos = data.filter(d => d.tipo !== 'cardapio');

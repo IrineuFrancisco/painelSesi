@@ -30,41 +30,18 @@ function Avisos({ tipoExibicao, horaAtual = new Date() }) {
   const fetchAvisos = async () => {
     try {
       setLoading(true);
-      
-      // 1. Busca primeiramente do arquivo local avisos.json
-      // Isso elimina 100% o pop-up de erro SSL ("SSL error when loading...") disparado pelas TVs LG/Roku
-      try {
-        const response = await fetch(`/avisos.json?_t=${Date.now()}`, { cache: 'no-store' });
-        if (response.ok) {
-          const data = await response.json();
-          if (Array.isArray(data) && data.length > 0) {
-            setTodosAvisos(data);
-            setError(null);
-            return;
-          }
+      // Lê 100% exclusivamente do arquivo /avisos.json do próprio servidor local
+      // Isso elimina definitivamente qualquer requisição HTTPS externa ao Supabase e o erro de SSL na TV
+      const response = await fetch(`/avisos.json?_t=${Date.now()}`, { cache: 'no-store' });
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          setTodosAvisos(data);
+          setError(null);
         }
-      } catch (localErr) {
-        console.warn('Arquivo avisos.json local indisponível, buscando fallback...', localErr);
-      }
-
-      // 2. Fallback secundário silencioso (caso o avisos.json local não esteja presente)
-      const supabaseRes = await fetch(
-        `https://qfnibnhjdnczxoublxif.supabase.co/rest/v1/avisos?select=*&ativo=eq.true&order=ordem.asc`,
-        {
-          headers: {
-            "apikey": "sb_publishable_rZf4HnUkAiO16oaQwserjg_Axj-2BwL",
-            "Authorization": "Bearer sb_publishable_rZf4HnUkAiO16oaQwserjg_Axj-2BwL"
-          }
-        }
-      ).catch(() => null);
-
-      if (supabaseRes && supabaseRes.ok) {
-        const supabaseData = await supabaseRes.json();
-        setTodosAvisos(supabaseData || []);
-        setError(null);
       }
     } catch (err) {
-      console.error('Erro ao carregar avisos:', err);
+      console.warn('Erro ao carregar avisos.json local:', err);
     } finally {
       setLoading(false);
     }
