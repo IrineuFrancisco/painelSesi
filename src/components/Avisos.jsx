@@ -31,7 +31,23 @@ function Avisos({ tipoExibicao, horaAtual = new Date() }) {
     try {
       setLoading(true);
       
-      // Busca primeiro os avisos direto do Supabase
+      // 1. Busca primeiramente do arquivo local avisos.json
+      // Isso elimina 100% o pop-up de erro SSL ("SSL error when loading...") disparado pelas TVs LG/Roku
+      try {
+        const response = await fetch(`/avisos.json?_t=${Date.now()}`, { cache: 'no-store' });
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setTodosAvisos(data);
+            setError(null);
+            return;
+          }
+        }
+      } catch (localErr) {
+        console.warn('Arquivo avisos.json local indisponível, buscando fallback...', localErr);
+      }
+
+      // 2. Fallback secundário silencioso (caso o avisos.json local não esteja presente)
       const supabaseRes = await fetch(
         `https://qfnibnhjdnczxoublxif.supabase.co/rest/v1/avisos?select=*&ativo=eq.true&order=ordem.asc`,
         {
@@ -46,26 +62,9 @@ function Avisos({ tipoExibicao, horaAtual = new Date() }) {
         const supabaseData = await supabaseRes.json();
         setTodosAvisos(supabaseData || []);
         setError(null);
-        return;
       }
-      throw new Error('Supabase indisponível');
-    } catch (sbErr) {
-      console.warn('Supabase indisponível. Buscando do arquivo avisos.json local...', sbErr.message);
-      try {
-        const response = await fetch(`/avisos.json?_t=${Date.now()}`);
-        const contentType = response.headers.get('content-type');
-        
-        if (!response.ok || (contentType && contentType.includes('text/html'))) {
-          throw new Error('Arquivo avisos.json não disponível.');
-        }
-        
-        const data = await response.json();
-        setTodosAvisos(data || []);
-        setError(null);
-      } catch (err) {
-        console.error('Erro ao buscar avisos locais e no Supabase:', err);
-        setError('Erro ao carregar dados do servidor');
-      }
+    } catch (err) {
+      console.error('Erro ao carregar avisos:', err);
     } finally {
       setLoading(false);
     }

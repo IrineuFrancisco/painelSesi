@@ -9,8 +9,8 @@
 
 /* Título do Card */
 .card-titulo {
-  font-size: 1.6rem;
-  margin-bottom: 15px;
+  font-size: 1.4rem;
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
   font-weight: 700;
@@ -18,12 +18,11 @@
 }
 
 .card-titulo>*:not(:last-child) {
-  margin-right: 15px;
+  margin-right: 10px;
 }
 
 .card-icone {
-  font-size: 1.8rem;
-  /* animation: pulse 2s ease-in-out infinite; */
+  font-size: 1.6rem;
 }
 
 
@@ -183,8 +182,8 @@
 
 .aviso-destaque.com-midia .aviso-midia-img {
   max-width: 100%;
-  max-height: calc(100vh - 160px);
-  width: auto;
+  max-height: calc(100vh - 100px);
+  width: 100%;
   height: 100%;
   object-fit: contain;
   border-radius: 12px;
