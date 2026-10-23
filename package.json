@@ -5,6 +5,9 @@
   "homepage": ".",
   "scripts": {
     "start": "react-scripts start",
+    "dev": "react-scripts start",
+    "atualizar-avisos": "node scripts/atualizar-avisos.js",
+    "prebuild": "node scripts/atualizar-avisos.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

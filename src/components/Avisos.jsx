@@ -30,8 +30,37 @@ function Avisos({ tipoExibicao, horaAtual = new Date() }) {
   const fetchAvisos = async () => {
     try {
       setLoading(true);
-      // Lê 100% exclusivamente do arquivo /avisos.json do próprio servidor local
-      // Isso elimina definitivamente qualquer requisição HTTPS externa ao Supabase e o erro de SSL na TV
+
+      // Detecta se está rodando em Smart TV (LG webOS, Roku, Tizen) para evitar erro nativo de SSL do Supabase
+      const isSmartTV = typeof navigator !== 'undefined' && 
+        /web0s|webos|smarttv|lg netcast|roku|tizen/i.test(navigator.userAgent);
+
+      // Em computadores, tablets, celulares ou em desenvolvimento local, busca diretamente do Supabase em tempo real
+      if (!isSmartTV) {
+        try {
+          const supabaseRes = await fetch(
+            `https://qfnibnhjdnczxoublxif.supabase.co/rest/v1/avisos?select=*&ativo=eq.true&order=ordem.asc`,
+            {
+              headers: {
+                "apikey": "sb_publishable_rZf4HnUkAiO16oaQwserjg_Axj-2BwL",
+                "Authorization": "Bearer sb_publishable_rZf4HnUkAiO16oaQwserjg_Axj-2BwL"
+              }
+            }
+          );
+          if (supabaseRes && supabaseRes.ok) {
+            const data = await supabaseRes.json();
+            if (Array.isArray(data) && data.length > 0) {
+              setTodosAvisos(data);
+              setError(null);
+              return;
+            }
+          }
+        } catch (sbErr) {
+          console.warn('Supabase remoto inacessível, utilizando contingência avisos.json local:', sbErr);
+        }
+      }
+
+      // Lê do arquivo /avisos.json do próprio servidor local (seguro para Smart TVs sem erro de SSL e contingência offline)
       const response = await fetch(`/avisos.json?_t=${Date.now()}`, { cache: 'no-store' });
       if (response.ok) {
         const data = await response.json();
@@ -41,7 +70,7 @@ function Avisos({ tipoExibicao, horaAtual = new Date() }) {
         }
       }
     } catch (err) {
-      console.warn('Erro ao carregar avisos.json local:', err);
+      console.warn('Erro ao carregar avisos:', err);
     } finally {
       setLoading(false);
     }
@@ -52,6 +81,9 @@ function Avisos({ tipoExibicao, horaAtual = new Date() }) {
   // Memoiza a filtragem dos avisos para evitar recriar a referência do array no render
   const avisos = useMemo(() => {
     return todosAvisos.filter(item => {
+      // Ignora avisos desativados
+      if (item.ativo === false) return false;
+
       if (item.tipo === 'cardapio') {
         return item.titulo && item.titulo.includes(diaHoje);
       }
@@ -329,10 +361,12 @@ function Avisos({ tipoExibicao, horaAtual = new Date() }) {
 
       {avisos.length > 0 ? (
         <div className={`aviso-destaque ${temMidia ? 'com-midia' : ''}`} style={{ borderColor: aviso.cor }}>
-          <div className="aviso-header-flex">
-              <div className="aviso-icone" style={{ backgroundColor: aviso.cor }}>{aviso.icone || '📢'}</div>
-              <h3 className="aviso-titulo" style={{ color: aviso.cor }}>{aviso.titulo}</h3>
-          </div>
+          {(!temMidia || (aviso.titulo && aviso.titulo.trim() !== '')) && (
+            <div className="aviso-header-flex">
+                <div className="aviso-icone" style={{ backgroundColor: aviso.cor }}>{aviso.icone || '📢'}</div>
+                {aviso.titulo && <h3 className="aviso-titulo" style={{ color: aviso.cor }}>{aviso.titulo}</h3>}
+            </div>
+          )}
           <div className="aviso-conteudo">
             {renderConteudo(aviso)}
           </div>

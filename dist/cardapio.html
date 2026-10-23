@@ -292,21 +292,29 @@
                 setLoading(true);
                 try {
                     let data = null;
-                    // Tenta ler do arquivo local avisos.json em primeiro lugar
-                    try {
-                        const resLocal = await fetch(`/avisos.json?_t=${Date.now()}`, { cache: 'no-store' });
-                        if (resLocal.ok) {
-                            data = await resLocal.json();
+                    // Busca primeiramente direto do Supabase em tempo real
+                    if (supabase) {
+                        try {
+                            const { data: dataSb, error: sbErr } = await supabase
+                                .from('avisos')
+                                .select('*')
+                                .order('ordem', { ascending: true });
+                            if (!sbErr && dataSb && dataSb.length > 0) {
+                                data = dataSb;
+                            }
+                        } catch (errSb) {
+                            console.warn('Erro ao carregar do Supabase:', errSb);
                         }
-                    } catch (errLocal) {}
+                    }
 
-                    // Se não conseguir local e o supabase estiver configurado, tenta remoto
-                    if ((!data || data.length === 0) && supabase) {
-                        const { data: dataSb } = await supabase
-                            .from('avisos')
-                            .select('*')
-                            .order('ordem', { ascending: true });
-                        data = dataSb;
+                    // Se não conseguir via Supabase, tenta carregar do avisos.json local como contingência
+                    if (!data || data.length === 0) {
+                        try {
+                            const resLocal = await fetch(`/avisos.json?_t=${Date.now()}`, { cache: 'no-store' });
+                            if (resLocal.ok) {
+                                data = await resLocal.json();
+                            }
+                        } catch (errLocal) {}
                     }
 
                     if (!data) return;
@@ -468,6 +476,33 @@
                 setTimeout(() => setMessage({ type: '', text: '' }), 4000);
             };
 
+            const baixarAvisosJson = async () => {
+                try {
+                    let dataToDownload = [];
+                    if (supabase) {
+                        const { data: dataSb } = await supabase
+                            .from('avisos')
+                            .select('*')
+                            .eq('ativo', true)
+                            .order('ordem', { ascending: true });
+                        dataToDownload = dataSb || [];
+                    }
+                    if (dataToDownload.length === 0) {
+                        dataToDownload = [...cardapios.filter(c => c.ativo), ...outrosAvisos.filter(a => a.ativo)];
+                    }
+                    const blob = new Blob([JSON.stringify(dataToDownload, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'avisos.json';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showMessage('success', 'avisos.json exportado com sucesso!');
+                } catch (e) {
+                    showMessage('error', 'Erro ao baixar avisos.json: ' + e.message);
+                }
+            };
+
             if (!configured) {
                 return (
                     <div className="container">
@@ -493,12 +528,15 @@
             return (
                 <div className="container">
                     <div className="main-card">
-                        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
                             <div>
                                 <h2>Gestão de Cardápio Escolar</h2>
                                 <p className="subtitle">Edite o texto e adicione URLs de imagens para cada dia da semana.</p>
                             </div>
-                            <button className="btn btn-secondary" onClick={() => { localStorage.clear(); location.reload(); }}>Sair</button>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button className="btn btn-secondary" style={{ backgroundColor: '#118AB2' }} title="Baixar arquivo JSON atualizado para o servidor" onClick={baixarAvisosJson}>📥 Baixar avisos.json</button>
+                                <button className="btn btn-secondary" onClick={() => { localStorage.clear(); location.reload(); }}>Sair</button>
+                            </div>
                         </header>
 
                         {message.text && (

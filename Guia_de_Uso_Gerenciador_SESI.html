@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Guia de Uso - Gerenciador de Cardápios e Avisos SESI SP</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm 15mm 15mm 15mm;
+        }
+
+        :root {
+            --sesi-red: #E30613;
+            --sesi-dark-red: #B80510;
+            --sesi-black: #1E293B;
+            --sesi-gray: #F8FAFC;
+            --sesi-card-border: #E2E8F0;
+            --text-color: #334155;
+            --text-light: #64748B;
+            --success-color: #16A34A;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text-color);
+            background-color: #FFFFFF;
+            line-height: 1.5;
+            font-size: 13px;
+        }
+
+        .header-bar {
+            border-bottom: 4px solid var(--sesi-red);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .brand-logo {
+            background-color: var(--sesi-red);
+            color: white;
+            font-weight: 900;
+            font-size: 22px;
+            padding: 4px 14px;
+            letter-spacing: 1px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .header-title-box h1 {
+            font-size: 18px;
+            color: var(--sesi-black);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .header-title-box p {
+            font-size: 11px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .doc-badge {
+            background-color: #FEF2F2;
+            color: var(--sesi-red);
+            border: 1px solid #FCA5A5;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .section {
+            margin-bottom: 22px;
+        }
+
+        .section-title {
+            font-size: 15px;
+            color: var(--sesi-black);
+            border-left: 4px solid var(--sesi-red);
+            padding-left: 10px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title span.number {
+            background-color: var(--sesi-red);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        p {
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        .intro-box {
+            background-color: var(--sesi-gray);
+            border: 1px solid var(--sesi-card-border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+        }
+
+        .intro-box p {
+            margin-bottom: 6px;
+        }
+
+        .intro-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .feature-card {
+            background: white;
+            border: 1px solid var(--sesi-card-border);
+            border-radius: 6px;
+            padding: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .feature-card strong {
+            color: var(--sesi-black);
+            font-size: 12px;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .feature-card p {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-bottom: 0;
+        }
+
+        /* Mockups & Screen representations */
+        .mockup-container {
+            border: 1px solid #CBD5E1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #F1F5F9;
+            margin: 14px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .mockup-header {
+            background: #334155;
+            color: white;
+            padding: 8px 14px;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: monospace;
+        }
+
+        .mockup-dots {
+            display: flex;
+            gap: 5px;
+        }
+
+        .mockup-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .mockup-body {
+            padding: 16px;
+            background: white;
+        }
+
+        .step-list {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+
+        .step-item {
+            position: relative;
+            padding-left: 36px;
+            margin-bottom: 14px;
+        }
+
+        .step-item::before {
+            counter-increment: step-counter;
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 24px;
+            height: 24px;
+            background-color: var(--sesi-red);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .step-item strong {
+            color: var(--sesi-black);
+        }
+
+        .info-callout {
+            background-color: #EFF6FF;
+            border-left: 4px solid #3B82F6;
+            padding: 10px 14px;
+            border-radius: 0 6px 6px 0;
+            margin: 12px 0;
+            font-size: 11.5px;
+        }
+
+        .info-callout.warning {
+            background-color: #FFFBEB;
+            border-left-color: #F59E0B;
+        }
+
+        .info-callout.success {
+            background-color: #F0FDF4;
+            border-left-color: #22C55E;
+        }
+
+        .code-box {
+            background: #1E293B;
+            color: #F8FAFC;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 11px;
+            margin: 8px 0;
+            word-break: break-all;
+        }
+
+        .badge-type {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            color: white;
+            margin-right: 4px;
+        }
+
+        .type-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .type-card {
+            border: 1px solid var(--sesi-card-border);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+            background: white;
+        }
+
+        .type-card .icon {
+            font-size: 16px;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .type-card .name {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--sesi-black);
+        }
+
+        .page-break {
+            page-break-after: always;
+            break-after: page;
+        }
+
+        .footer {
+            margin-top: 30px;
+            border-top: 1px solid var(--sesi-card-border);
+            padding-top: 10px;
+            text-align: center;
+            font-size: 10px;
+            color: var(--text-light);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PÁGINA 1 -->
+    <div class="header-bar">
+        <div class="brand-header">
+            <div class="brand-logo">SESI</div>
+            <div class="header-title-box">
+                <h1>Guia de Uso do Gerenciador</h1>
+                <p>Painel Escolar de Cardápios, Avisos e Comunicação Visual</p>
+            </div>
+        </div>
+        <div class="doc-badge">Especificações 2026</div>
+    </div>
+
+    <div class="intro-box">
+        <p><strong>Bem-vindo ao Gerenciador de Cardápios e Avisos do SESI SP!</strong></p>
+        <p>Este documento fornece as instruções atualizadas de como acessar e operar o gerenciador do painel. O sistema permite atualizar cardápios nutricionais diários, avisos escolares, banners informativos e vídeos institucionais exibidos em tempo real nas TVs e monitores da unidade.</p>
+    </div>
+
+    <div class="section">
+        <div class="section-title"><span class="number">1</span> Recursos e Especificações Técnicas</div>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <strong>⏰ Sincronização Automática de Hora</strong>
+                <p>O relógio é sincronizado com o servidor Linux de hospedagem para precisão total dos horários de aulas, refeições e alarmes.</p>
+            </div>
+            <div class="feature-card">
+                <strong>⚡ Leitura Local Resiliente (/avisos.json)</strong>
+                <p>Os avisos são consumidos via arquivo JSON local, evitando falhas por oscilação de internet ou certificados SSL nas TVs.</p>
+            </div>
+            <div class="feature-card">
+                <strong>🔔 Alertas Sonoros Inteligentes</strong>
+                <p>Toca alertas sonoros automáticos com fade-in progressivo de volume nos horários de entrada, café, trocas e saída.</p>
+            </div>
+            <div class="feature-card">
+                <strong>🎬 Mídias, Vídeos e Banners</strong>
+                <p>Suporte completo a imagens, banners, vídeos MP4, links do YouTube (Shorts e Vídeos) e arquivos do Google Drive.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title"><span class="number">2</span> Acesso ao Gerenciador</div>
+        <p>O ponto de partida para acessar o gerenciador é a própria tela do painel exibida nas TVs ou nos computadores da unidade.</p>
+
+        <ul class="step-list">
+            <li class="step-item">
+                <strong>Localize o Logo do SESI:</strong> Na tela principal do painel (ex: IP <code>10.137.146.23</code>), clique sobre o <strong>Logo do SESI</strong> localizado no canto superior esquerdo.
+            </li>
+            <li class="step-item">
+                <strong>Modal de Acesso Restrito:</strong> Uma janela flutuante de segurança surgirá solicitando a senha de administrador.
+            </li>
+            <li class="step-item">
+                <strong>Informe a Senha de Acesso:</strong> Digite a senha <code>sesisenai@283</code> e clique no botão vermelho <strong>Entrar</strong> (ou pressione <em>Enter</em>).
+            </li>
+            <li class="step-item">
+                <strong>Redirecionamento Automático:</strong> Após a confirmação, uma nova aba abrirá automaticamente no Gerenciador (<em>SESI SP | Nutrição e Gestão</em>).
+            </li>
+        </ul>
+
+        <!-- Visual representation of step 1 & 2 -->
+        <div class="mockup-container">
+            <div class="mockup-header">
+                <div class="mockup-dots">
+                    <div class="mockup-dot" style="background:#EF476F"></div>
+                    <div class="mockup-dot" style="background:#FEC601"></div>
+                    <div class="mockup-dot" style="background:#06D6A0"></div>
+                </div>
+                <span>http://10.137.146.23 - Painel Principal SESI SP</span>
+            </div>
+            <div class="mockup-body" style="background:#F8FAFC; text-align:center; padding: 20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; background:white; padding:12px; border-radius:6px; border:1px solid #E2E8F0; margin-bottom:15px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="background:#E30613; color:white; font-weight:900; padding:4px 12px; border-radius:4px; font-size:16px; border:2px solid #FFD700; cursor:pointer;" title="Clique aqui para abrir o Gerenciador">SESI 👈 (Clique Aqui)</span>
+                        <span style="color:#64748B; font-size:11px;">PAINEL DE GESTÃO ESCOLAR</span>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:10px; color:#64748B;">QUINTA-FEIRA, 18 DE JUNHO</div>
+                        <div style="font-size:18px; font-weight:bold; color:#1E293B;">08:38</div>
+                    </div>
+                </div>
+
+                <!-- Simulação do Modal de Senha -->
+                <div style="max-width:320px; margin:0 auto; background:white; border:1px solid #CBD5E1; border-radius:8px; padding:16px; box-shadow:0 10px 25px rgba(0,0,0,0.15);">
+                    <h4 style="color:#1E293B; margin-bottom:10px; font-size:13px;">🔒 Acesso Restrito</h4>
+                    <input type="password" value="••••••••••••" readonly style="width:100%; padding:8px; border:1px solid #CBD5E1; border-radius:4px; margin-bottom:12px; text-align:center; background:#F8FAFC;" />
+                    <div style="display:flex; gap:8px;">
+                        <button style="flex:1; padding:6px; border:1px solid #CBD5E1; background:white; border-radius:4px; font-weight:bold; font-size:11px;">Cancelar</button>
+                        <button style="flex:1; padding:6px; border:none; background:#E30613; color:white; border-radius:4px; font-weight:bold; font-size:11px;">Entrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Página 1 de 2 • Guia de Uso: Gerenciador de Cardápios e Avisos SESI SP • Atualização 2026
+    </div>
+
+    <!-- QUEBRA DE PÁGINA PARA PÁGINA 2 -->
+    <div class="page-break"></div>
+
+    <!-- PÁGINA 2 -->
+    <div class="header-bar">
+        <div class="brand-header">
+            <div class="brand-logo">SESI</div>
+            <div class="header-title-box">
+                <h1>Guia de Uso do Gerenciador</h1>
+                <p>Gestão do Cardápio, Avisos e Mídias</p>
+            </div>
+        </div>
+        <div class="doc-badge">Especificações 2026</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title"><span class="number">3</span> Gestão do Cardápio Escolar</div>
+        <p>Ao carregar o Gerenciador, o sistema busca automaticamente os dados gravados. Serão exibidos os quadros para cada dia útil da semana (Segunda a Sexta-feira).</p>
+
+        <div class="info-callout warning">
+            <strong>⚠️ REGRA DE FORMATAÇÃO OBRIGATÓRIA DOS TEXTOS:</strong><br>
+            Para garantir que o cardápio seja formatado corretamente na tela dos alunos, divida os períodos com a barra vertical <code>|</code>.
+            <div class="code-box">
+                MANHÃ: [itens] | ALMOÇO: [itens] | TARDE: [itens]
+            </div>
+            <em>Exemplo prático:</em><br>
+            <code>MANHÃ: Leite com Nesquik, Pão | ALMOÇO: Arroz, feijão, frango à parmeggiana | TARDE: Suco, maçã</code>
+        </div>
+
+        <ul class="step-list">
+            <li class="step-item">
+                <strong>Edição de Texto:</strong> Insira a descrição da refeição no campo <strong>Descrição do Cardápio</strong> conforme o formato padrão.
+            </li>
+            <li class="step-item">
+                <strong>NOVO - Banner / Imagem do Cardápio (Opcional):</strong> Cole o link direto da imagem ou do <strong>Google Drive</strong> no campo <em>URL da Imagem / Banner do Cardápio</em>. O sistema converte automaticamente links do Google Drive para exibição imediata!
+            </li>
+            <li class="step-item">
+                <strong>Prévia em Tempo Real:</strong> Acompanhe a prévia na caixa <strong>Visualização</strong> logo abaixo dos campos.
+            </li>
+            <li class="step-item">
+                <strong>Salvar Alterações:</strong> Clique no botão vermelho <strong>ATUALIZAR [DIA]</strong> (ex: <em>Atualizar Segunda</em>). Uma notificação verde confirmará o salvamento no banco e no servidor.
+            </li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <div class="section-title"><span class="number">4</span> Gestão de Avisos Gerais, Banners e Vídeos</div>
+        <p>Na seção inferior do Gerenciador, você gerencia os informativos, eventos, alertas e vídeos que circulam continuamente nas TVs.</p>
+
+        <p><strong>Tipos de Avisos e Cores Temáticas:</strong></p>
+        <div class="type-grid">
+            <div class="type-card" style="border-top:3px solid #EF476F">
+                <span class="icon">⚠️</span>
+                <span class="name">Importante</span>
+            </div>
+            <div class="type-card" style="border-top:3px solid #FEC601">
+                <span class="icon">🎉</span>
+                <span class="name">Evento</span>
+            </div>
+            <div class="type-card" style="border-top:3px solid #06D6A0">
+                <span class="icon">📚</span>
+                <span class="name">Lembrete</span>
+            </div>
+            <div class="type-card" style="border-top:3px solid #118AB2">
+                <span class="icon">💡</span>
+                <span class="name">Informação</span>
+            </div>
+            <div class="type-card" style="border-top:3px solid #FF6B35">
+                <span class="icon">🏥</span>
+                <span class="name">Saúde</span>
+            </div>
+            <div class="type-card" style="border-top:3px solid #8E44AD">
+                <span class="icon">🖼️</span>
+                <span class="name">Banner / Imagem</span>
+            </div>
+            <div class="type-card" style="border-top:3px solid #E67E22">
+                <span class="icon">🎬</span>
+                <span class="name">Vídeo</span>
+            </div>
+            <div class="type-card" style="border-top:3px solid #10B981">
+                <span class="icon">🍽️</span>
+                <span class="name">Cardápio</span>
+            </div>
+        </div>
+
+        <div class="info-callout success">
+            <strong>🎬 SUPORTE A VÍDEOS E YOUTUBE:</strong><br>
+            Você pode inserir links de vídeos MP4, links de transmissões e vídeos do <strong>YouTube</strong> (incluindo Shorts). O painel inteligente detecta o término do vídeo do YouTube para avançar automaticamente ao próximo aviso, mantendo o tempo máximo de 15 segundos por slide.
+        </div>
+
+        <p><strong>Passo a Passo para Criar e Gerenciar Avisos:</strong></p>
+        <ul class="step-list">
+            <li class="step-item">
+                <strong>Criar Novo Aviso:</strong> Vá até o quadro tracejado <strong>Novo Aviso</strong>, preencha o <em>Título</em>, escolha o <em>Tipo</em>, digite a <em>Mensagem</em> (opcional se houver mídia) e informe a <em>URL da Mídia</em>. Clique no botão verde <strong>+ ADICIONAR AVISO</strong>.
+            </li>
+            <li class="step-item">
+                <strong>Ativar / Desativar Exibição:</strong> Nos cards dos avisos criados, use o botão no canto superior direito para alternar entre <strong>Ativo</strong> (fundo verde) e <strong>Inativo</strong> (fundo escuro). Avisos inativos ficam ocultos da TV sem serem apagados.
+            </li>
+            <li class="step-item">
+                <strong>Editar / Atualizar:</strong> Altere os textos ou links diretamente nos cards existentes e clique no botão <strong>Salvar</strong> correspondente.
+            </li>
+            <li class="step-item">
+                <strong>Excluir:</strong> Clique no botão vermelho <strong>EXCLUIR</strong> para remover definitivamente o aviso.
+            </li>
+        </ul>
+    </div>
+
+    <div class="footer">
+        Página 2 de 2 • Guia de Uso: Gerenciador de Cardápios e Avisos SESI SP • Atualização 2026
+    </div>
+
+</body>
+</html>
